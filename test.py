@@ -20,4 +20,4 @@ drone(TakeOff()).wait()
 print("GPS position after take-off : ", drone.get_state(PositionChanged))
 drone(Landing()).wait().success()
 
-drone.disconnection(
+drone.disconnection()
