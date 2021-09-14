@@ -42,11 +42,14 @@ def mokudai():
     drone(TakeOff()).wait(2)
     drone(moveTo(start[0],start[1],start[2],MoveTo_Orientation_mode.TO_TARGET,0.0)
          >> moveToChanged(status='DONE', _timeout=10)).wait(2)
+    drone(moveTo(p0[0],p0[1],p0[2],MoveTo_Orientation_mode.TO_TARGET,0.0)
+         >> moveToChanged(status='DONE', _timeout=10)).wait(2)
+    
     print('GOAL')
     drone(Landing()).wait()
     print("GPS position after take-off : ", drone.get_state(PositionChanged))
     drone.disconnection()
-      
+
 #去年の研究まで
 def move_by_gpsdata(gps_data):
     drone = olympe.Drone("192.168.42.1")
