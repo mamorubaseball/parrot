@@ -38,8 +38,12 @@ def mokudai():
     goal=[35.709901,139.523350,1.0]
     drone = olympe.Drone("192.168.42.1")
     drone.connection()
-    drone(TakeOff()).wait(2)
-    drone(
+    assert drone(
+        TakeOff()
+        >> FlyingStateChanged(state="hovering", _timeout=5)
+    ).wait().success()
+    
+    assert drone(
         moveTo(start[0],start[1], start[2],
                MoveTo_Orientation_mode.TO_TARGET, 0.0)
         >> FlyingStateChanged(state="hovering", _timeout=5)
