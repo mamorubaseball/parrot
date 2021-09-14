@@ -31,24 +31,46 @@ def moveto(drone):
         )
         >> moveToChanged(status='DONE', _timeout=10)
     ).wait()
-#時計台からスタートして、木台まで移動する関数
+#研究室前からスタートして、木台まで移動する関数
 def mokudai():
-    start=[35.709929,139.523326,1.0]
-    p0=[35.709901,139.523328,1.0]
+    start=[35.7099482,139.5230989,1.0]
+    p0=[35.7099068,139.5231090,1.0]
     goal=[35.709901,139.523350,1.0]
-
     drone = olympe.Drone("192.168.42.1")
     drone.connection()
     drone(TakeOff()).wait(2)
-    drone(moveTo(start[0],start[1],start[2],MoveTo_Orientation_mode.TO_TARGET,0.0)
-         >> moveToChanged(status='DONE', _timeout=10)).wait(2)
-    drone(moveTo(p0[0],p0[1],p0[2],MoveTo_Orientation_mode.TO_TARGET,0.0)
-         >> moveToChanged(status='DONE', _timeout=10)).wait(2)
-    
-    print('GOAL')
+    drone(
+        moveTo(start[0],start[1], start[2],
+               MoveTo_Orientation_mode.TO_TARGET, 0.0)
+        >> FlyingStateChanged(state="hovering", _timeout=5)
+        >> moveToChanged(p0[0],p0[1],p0[2],
+                orientation_mode=MoveTo_Orientation_mode.TO_TARGET,status='DONE', _policy='wait')
+        >> FlyingStateChanged(state="hovering", _timeout=5)
+    ).wait()
+    # drone(moveTo(start[0],start[1],start[2],MoveTo_Orientation_mode.TO_TARGET,0.0)
+    #      >> moveToChanged(status='DONE', _timeout=10)).wait(2)
+    print('=====================GOAL=====================================')
     drone(Landing()).wait()
     print("GPS position after take-off : ", drone.get_state(PositionChanged))
     drone.disconnection()
+     
+# def mokudai():
+#     start=[35.709929,139.523326,1.0]
+#     p0=[35.709901,139.523328,1.0]
+#     goal=[35.709901,139.523350,1.0]
+
+#     drone = olympe.Drone("192.168.42.1")
+#     drone.connection()
+#     drone(TakeOff()).wait(2)
+#     drone(moveTo(start[0],start[1],start[2],MoveTo_Orientation_mode.TO_TARGET,0.0)
+#          >> moveToChanged(status='DONE', _timeout=10)).wait(2)
+#     drone(moveTo(p0[0],p0[1],p0[2],MoveTo_Orientation_mode.TO_TARGET,0.0)
+#          >> moveToChanged(status='DONE', _timeout=10)).wait(2)
+    
+#     print('GOAL')
+#     drone(Landing()).wait()
+#     print("GPS position after take-off : ", drone.get_state(PositionChanged))
+#     drone.disconnection()
 
 #去年の研究まで
 def move_by_gpsdata(gps_data):
