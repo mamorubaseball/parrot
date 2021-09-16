@@ -24,12 +24,9 @@ def get_now_gps(drone):
 def calcurate(drone):
     gps=get_now_gps(drone)
     print('='*10)
-    print(gps)
-    print(gps[0])
-    print(gps['latitude'])
-    lat1,log1,alt1=gps[0],gps[1],gps[2]
+    lat1,log1,alt1=gps['latitude'],gps['logitude'],gps['altitude']
     lat2,log2,alt2=p0[0],p0[1],p0[2]
-    disctance=get_distance(lat1,log1,lat2,log2,precision=8)
+    disctance=get_distance(lat1,log1,lat2,log2,8)
     direction=get_direction(lat1,log1,lat2,log2)
     x=disctance*math.cos(math.radians(direction))
     y=disctance*math.sin(math.radians(direction))
