@@ -233,3 +233,7 @@ if __name__ == "__main__":
     streaming_example.stop()
     # Recorded video stream postprocessing
     streaming_example.postprocessing()
+    
+    drone = olympe.Drone(DRONE_IP)
+    drone.connect()
+    assert drone(Landing()).wait().success()
