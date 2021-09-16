@@ -21,16 +21,25 @@ def get_now_gps(drone):
     drone(GPSFixStateChanged(_policy='wait'))
     return drone.get_state(HomeChanged)
 
-def calcurate(drone):
+def calcurate(drone,p):
     gps=get_now_gps(drone)
     print('='*10)
     lat1,log1,alt1=gps['latitude'],gps['logitude'],gps['altitude']
-    lat2,log2,alt2=p0[0],p0[1],p0[2]
+    lat2,log2,alt2=p[0],p[1],p[2]
     disctance=get_distance(lat1,log1,lat2,log2,8)
     direction=get_direction(lat1,log1,lat2,log2)
     x=disctance*math.cos(math.radians(direction))
     y=disctance*math.sin(math.radians(direction))
     z=0
+    if x>5:
+        x=5
+    elif x<-5:
+        x=-5
+    if y>5:
+        y=5
+    elif y<-5:
+        y=-5
+    
     return x,y,z,direction
 
 def get_distance(lat1,log1,lat2,log2,precision):
@@ -66,7 +75,14 @@ def get_direction(lat1,log1,lat2,log2):
 def main():
     drone = olympe.Drone("192.168.42.1")
     drone.connection()
-    x,y,z,direction=calcurate(drone)
+    assert drone(TakeOff()
+        >> FlyingStateChanged(state="hovering", _timeout=5)).wait().success()
+
+    x,y,z,direction=calcurate(drone,p0)
+    drone(moveBy(y, x, z, direction)
+        >> FlyingStateChanged(state="hovering", _timeout=5)).wait().success()
+    print('=====================p0=====================================')
+    x,y,z,direction=calcurate(drone,goal)
     drone(moveBy(y, x, z, direction)
         >> FlyingStateChanged(state="hovering", _timeout=5)).wait().success()
     print('=====================GOAL=====================================')
