@@ -70,6 +70,8 @@ def get_direction(lat1,log1,lat2,log2):
     if dirE0<0:
         dirE0+=360
     dirN0=(dirE0+90)%360
+    dirN0=dirN0/360*math.pi
+    
     return dirN0 #北をゼロとして、角度う
 
 def main():
