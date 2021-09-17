@@ -81,19 +81,26 @@ def main():
         >> FlyingStateChanged(state="hovering", _timeout=5)).wait().success()
 
     x,y,z,direction=calcurate(drone,p0)
-    drone(moveBy(y, x, z, direction)
-        >> PCMD(1, 0, 0, 0, 0, 0)
-        >> FlyingStateChanged(state="hovering", _timeout=5)).wait().success()
+    drone(moveBy(0, 0, 0, direction)
+        >> FlyingStateChanged(state="hovering", _timeout=3)).wait().success()
+    
+    drone(moveBy(y, x, z, 0)
+        >> FlyingStateChanged(state="hovering", _timeout=3)).wait().success()
     
     print('=====================p0=====================================')
     x,y,z,direction=calcurate(drone,goal)
-    drone(moveBy(y, x, z, direction)
-        >> PCMD(1, 0, 0, 0, 0, 0)
-        >> FlyingStateChanged(state="hovering", _timeout=5)).wait().success()
+    drone(moveBy(0, 0, 0, direction)
+  
+        >> FlyingStateChanged(state="hovering", _timeout=3)).wait().success()
+    drone(moveBy(y, x, z, 0)
+        >> FlyingStateChanged(state="hovering", _timeout=3)).wait().success()
+    
     print('=====================GOAL=====================================')
     drone(Landing()).wait()
-    print("GPS position after take-off : ", drone.get_state(PositionChanged))
-    drone.disconnection()
+   
+    drone_gps=drone.get_state(PositionChanged)
+    d=get_distance(goal[0],goal[1],drone_gps['latitude'],drone_gps['longitude'],8)
+    print('===============ゴールとの差：'+d+'==========================')
 
 if __name__ == '__main__':
     main()
