@@ -150,7 +150,7 @@ def main():
     drone_drirectio=0
     set_gimbal(drone)
     time.sleep(5)
-    df=pd.read_csv('GPS.csv')
+    df=pd.read_csv('GPS10.csv')
     if len(df)>20:
         break
     assert drone(TakeOff()
