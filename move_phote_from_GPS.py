@@ -9,6 +9,7 @@ from olympe.enums.ardrone3.PilotingState import MoveToChanged_Status as status
 from olympe.enums.ardrone3.Piloting import MoveTo_Orientation_mode
 import olympe.enums.move as mode
 import math
+from math import sin, cos, tan, atan2, acos, pi
 import os, csv, time, tempfile
 from phote import *
 # from phote import *
@@ -88,29 +89,30 @@ def get_direction(lat1, log1, lat2, log2):
     return dirN0  # 北をゼロとして、角
 
 #kakudo
-def azimuth(x1, y1, x2, y2):
-    # Radian角に修正
-    _x1, _y1, _x2, _y2 = x1*pi/180, y1*pi/180, x2*pi/180, y2*pi/180
-    Δx = _x2 - _x1
-    _y = sin(Δx)
-    _x = cos(_y1) * tan(_y2) - sin(_y1) * cos(Δx)
+# def azimuth(x1, y1, x2, y2):
+#     # Radian角に修正
+#     _x1, _y1, _x2, _y2 = x1*pi/180, y1*pi/180, x2*pi/180, y2*pi/180
+#     Δx = _x2 - _x1
+#     _y = sin(Δx)
+#     _x = cos(_y1) * tan(_y2) - sin(_y1) * cos(Δx)
 
-    psi = atan2(_y, _x) * 180 / pi
-    if psi < 0:
-        return 360 + atan2(_y, _x) * 180 / pi
-    else:
-        return atan2(_y, _x) * 180 / pi
-#距離
-def distance(x1, y1, x2, y2, 6378.137e3):
-    _x1, _y1, _x2, _y2 = x1*pi/180, y1*pi/180, x2*pi/180, y2*pi/180
-    Δx = _x2 - _x1
-    val = sin(_y1) * sin(_y2) + cos(_y1) * cos(_y2) * cos(Δx)
-    return r * acos(val)*1000
+#     psi = atan2(_y, _x) * 180 / pi
+#     if psi < 0:
+#         return 360 + atan2(_y, _x) * 180 / pi
+#     else:
+#         return atan2(_y, _x) * 180 / pi
+# #距離
+# def distance(x1, y1, x2, y2, 6378.137e3):
+#     _x1, _y1, _x2, _y2 = x1*pi/180, y1*pi/180, x2*pi/180, y2*pi/180
+#     Δx = _x2 - _x1
+#     val = sin(_y1) * sin(_y2) + cos(_y1) * cos(_y2) * cos(Δx)
+#     return r * acos(val)*1000
 
 #回転させて進んだら写真撮る関数[pは
-def move_take_phote(drone,p):
+def move_take_phote(drone,p,drone_direcion):
     ditance, direction = distance_direction(drone, p)
-    drone(moveBy(0, 0, 0, direction)
+    sita=direction-drone_direcion
+    drone(moveBy(0, 0, 0, sita)
           >> FlyingStateChanged(state="hovering", _timeout=5)).wait().success()
 
     drone(moveBy(ditance, 0, 0, 0)
@@ -118,6 +120,8 @@ def move_take_phote(drone,p):
 
     setup_photo_burst_mode(drone)
     take_photo_burst(drone)
+    drone_direcion+=sita
+    return drone_direcion
 
 
 #スタート地点に行く(写真撮る)
@@ -143,6 +147,7 @@ def practice():
 def main():
     drone = olympe.Drone("192.168.42.1")
     drone.connection()
+    drone_drirectio=0
     set_gimbal(drone)
     time.sleep(5)
     df=pd.read_csv('GPS.csv')
@@ -152,7 +157,7 @@ def main():
                  >> FlyingStateChanged(state="hovering", _timeout=5)).wait().success()
     for i,d in df.iterrows():
         gps=[d[0],d[1],d[2]]
-        move_take_phote(drone, gps)
+        drone_direction=move_take_phote(drone, gps,drone_direction)
         print('======現在地点{}==========='.format(gps))
     drone(Landing()).wait()
     drone_gps = drone.get_state(PositionChanged)
