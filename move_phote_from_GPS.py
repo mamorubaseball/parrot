@@ -128,8 +128,8 @@ def main():
     gps_df=pd.read_csv('GPS.csv')
     assert drone(TakeOff()
                  >> FlyingStateChanged(state="hovering", _timeout=5)).wait().success()
-    for i in range(len(gps_df)):
-        gps=[gps_df[0][i],gps_df[1][i],gps_df[2][i]]
+    for i,d in df.iterrows():
+        gps=[d[0],d[1],d[2]]
         move_take_phote(drone, gps)
         print('======現在地点{}==========='.format(gps))
     drone(Landing()).wait()
