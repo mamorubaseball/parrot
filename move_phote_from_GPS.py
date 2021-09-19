@@ -85,7 +85,27 @@ def get_direction(lat1, log1, lat2, log2):
         dirE0 += 360
     dirN0 = (dirE0 + 90) % 360
     dirN0 = dirN0 / 360 * math.pi
-    return dirN0  # 北をゼロとして、角度う
+    return dirN0  # 北をゼロとして、角
+
+#kakudo
+def azimuth(x1, y1, x2, y2):
+    # Radian角に修正
+    _x1, _y1, _x2, _y2 = x1*pi/180, y1*pi/180, x2*pi/180, y2*pi/180
+    Δx = _x2 - _x1
+    _y = sin(Δx)
+    _x = cos(_y1) * tan(_y2) - sin(_y1) * cos(Δx)
+
+    psi = atan2(_y, _x) * 180 / pi
+    if psi < 0:
+        return 360 + atan2(_y, _x) * 180 / pi
+    else:
+        return atan2(_y, _x) * 180 / pi
+#距離
+def distance(x1, y1, x2, y2, 6378.137e3):
+    _x1, _y1, _x2, _y2 = x1*pi/180, y1*pi/180, x2*pi/180, y2*pi/180
+    Δx = _x2 - _x1
+    val = sin(_y1) * sin(_y2) + cos(_y1) * cos(_y2) * cos(Δx)
+    return r * acos(val)*1000
 
 #回転させて進んだら写真撮る関数[pは
 def move_take_phote(drone,p):
@@ -107,7 +127,7 @@ def practice():
     drone = olympe.Drone("192.168.42.1")
     drone.connection()
     set_gimbal(drone)
-    time.sleep(10)
+    time.sleep(5)
     assert drone(TakeOff()
                  >> FlyingStateChanged(state="hovering", _timeout=5)).wait().success()
     move_take_phote(drone,start)
@@ -124,8 +144,10 @@ def main():
     drone = olympe.Drone("192.168.42.1")
     drone.connection()
     set_gimbal(drone)
-    time.sleep(10)
-    gps_df=pd.read_csv('GPS.csv')
+    time.sleep(5)
+    df=pd.read_csv('GPS.csv')
+    if len(df)>20:
+        break
     assert drone(TakeOff()
                  >> FlyingStateChanged(state="hovering", _timeout=5)).wait().success()
     for i,d in df.iterrows():
