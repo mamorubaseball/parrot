@@ -10,7 +10,7 @@ from olympe.enums.ardrone3.Piloting import MoveTo_Orientation_mode
 import olympe.enums.move as mode
 import math
 import os, csv, time, tempfile
-from parrot.phote import *
+from phote import *
 # from phote import *
 import csv
 import pandas as pd
@@ -125,7 +125,7 @@ def main():
     drone.connection()
     set_gimbal(drone)
     time.sleep(10)
-    gps_df=pd.read_csv('csv/GPS.csv')
+    gps_df=pd.read_csv('GPS.csv')
     assert drone(TakeOff()
                  >> FlyingStateChanged(state="hovering", _timeout=5)).wait().success()
     for i in range(len(gps_df)):
