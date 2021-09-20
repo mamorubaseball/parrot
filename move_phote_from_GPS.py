@@ -110,12 +110,14 @@ def get_direction(lat1, log1, lat2, log2):
 
 #回転させて進んだら写真撮る関数[pは
 def move_take_phote(drone,p,drone_direcion):
-    ditance, direction = distance_direction(drone, p)
+    distance, direction = distance_direction(drone, p)
     sita=direction-drone_direcion
+    if distance>4:
+        distance=4
     drone(moveBy(0, 0, 0, sita)
           >> FlyingStateChanged(state="hovering", _timeout=5)).wait().success()
 
-    drone(moveBy(ditance, 0, 0, 0)
+    drone(moveBy(distance, 0, 0, 0)
           >> FlyingStateChanged(state="hovering", _timeout=5)).wait().success()
 
     setup_photo_burst_mode(drone)
@@ -145,17 +147,18 @@ def practice():
     print(get_distance(goal[0], goal[1], drone_gps['latitude'], drone_gps['longitude'], 8))
 
 def main():
+    start = time.time()
     drone = olympe.Drone("192.168.42.1")
     drone.connection()
-    drone_drirectio=0
+    drone_direction=0
     set_gimbal(drone)
     time.sleep(5)
     df=pd.read_csv('GPS10.csv')
-    if len(df)>20:
-        break
     assert drone(TakeOff()
                  >> FlyingStateChanged(state="hovering", _timeout=5)).wait().success()
     for i,d in df.iterrows():
+        if time.time()-start>120:
+            break
         gps=[d[0],d[1],d[2]]
         drone_direction=move_take_phote(drone, gps,drone_direction)
         print('======現在地点{}==========='.format(gps))
@@ -163,6 +166,6 @@ def main():
     drone_gps = drone.get_state(PositionChanged)
     print(get_distance(goal[0], goal[1], drone_gps['latitude'], drone_gps['longitude'], 8))
 if __name__ == '__main__':
-    practice()
+    # practice()
     main()
 
