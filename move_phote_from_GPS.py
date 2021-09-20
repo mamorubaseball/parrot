@@ -56,7 +56,7 @@ def distance_direction(drone, p):
 
 def get_distance(lat1, log1, lat2, log2, precision):
     distance = 0
-    if abs(lat1 - lat2) < 0.00001 and abs(log1 - log2) < 0.00001:
+    if abs(lat1 - lat2) < 0.000001 and abs(log1 - log2) < 0.0000001:
         distance = 0
     else:
         lat1 = lat1 * math.pi / 180
@@ -75,7 +75,6 @@ def get_distance(lat1, log1, lat2, log2, precision):
         decimal_no = math.pow(10, precision)
         distance = round(decimal_no * distance / 1) / decimal_no
         return distance
-
 
 def get_direction(lat1, log1, lat2, log2):
     Y = math.cos(log2 * math.pi / 180) * math.sin(lat2 * math.pi / 180 - lat1 * math.pi / 180);
@@ -109,9 +108,10 @@ def get_direction(lat1, log1, lat2, log2):
 #     return r * acos(val)*1000
 
 #回転させて進んだら写真撮る関数[pは
-def move_take_phote(drone,p,drone_direcion):
+def move_take_phote(drone,p,drone_direction):
     distance, direction = distance_direction(drone, p)
-    sita=direction-drone_direcion
+    sita=direction-drone_direction
+    print('============sita===========')
     if distance>4:
         distance=4
     drone(moveBy(0, 0, 0, sita)
@@ -122,10 +122,7 @@ def move_take_phote(drone,p,drone_direcion):
 
     setup_photo_burst_mode(drone)
     take_photo_burst(drone)
-    drone_direcion+=sita
-    return drone_direcion
-
-
+    return direction
 #スタート地点に行く(写真撮る)
 #p0地点までいく(写真撮る)
 #ゴール地点までいく(写真撮る)
@@ -157,11 +154,15 @@ def main():
     assert drone(TakeOff()
                  >> FlyingStateChanged(state="hovering", _timeout=5)).wait().success()
     for i,d in df.iterrows():
+        #２分以上の飛行をNGとする
         if time.time()-start>120:
+            print('=========２分以上の飛行========')
             break
         gps=[d[0],d[1],d[2]]
-        drone_direction=move_take_phote(drone, gps,drone_direction)
+        d=move_take_phote(drone, gps,drone_direction)
+        drone_direction=d
         print('======現在地点{}==========='.format(gps))
+        print('======ドローン方向{}==========='.format(drone_direction))
     drone(Landing()).wait()
     drone_gps = drone.get_state(PositionChanged)
     print(get_distance(goal[0], goal[1], drone_gps['latitude'], drone_gps['longitude'], 8))
