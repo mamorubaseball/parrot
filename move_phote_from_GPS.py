@@ -87,6 +87,24 @@ def get_direction(lat1, log1, lat2, log2):
     dirN0 = dirN0 / 360 * math.pi
     return dirN0  # 北をゼロとして、角
 
+def simulation():
+    df = pd.read_csv('GPS10_1.csv')
+    start = time.time()
+    drone_direction = 0
+    for i in range(len(df)-1):
+        drone=[df[0][i],df[1][i],df[2][i]]
+        gps=[df[0][i+1],df[1][i+1],df[2][i+1]]
+        lat1,log1=drone[0],drone[1]
+        lat2,log2=gps[0],gps[1]
+        distance = get_distance(lat1, log1, lat2, log2, 8)
+        direction = get_direction(lat1, log1, lat2, log2)
+        sita=drone_direction-direction
+
+        drone_direction = direction
+        print(distance)
+        print(direction)
+
+
 #kakudo
 # def azimuth(x1, y1, x2, y2):
 #     # Radian角に修正
@@ -168,5 +186,5 @@ def main():
     print(get_distance(goal[0], goal[1], drone_gps['latitude'], drone_gps['longitude'], 8))
 if __name__ == '__main__':
     # practice()
-    main()
-
+    # main()
+    simulation()
