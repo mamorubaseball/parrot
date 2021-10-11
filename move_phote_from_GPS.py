@@ -87,24 +87,6 @@ def get_direction(lat1, log1, lat2, log2):
     dirN0 = dirN0 / 360 * math.pi
     return dirN0  # 北をゼロとして、角
 
-def simulation():
-    df = pd.read_csv('GPS10_1.csv')
-    start = time.time()
-    drone_direction = 0
-    for i in range(len(df)-1):
-        drone=[df[0][i],df[1][i],df[2][i]]
-        gps=[df[0][i+1],df[1][i+1],df[2][i+1]]
-        lat1,log1=drone[0],drone[1]
-        lat2,log2=gps[0],gps[1]
-        distance = get_distance(lat1, log1, lat2, log2, 8)
-        direction = get_direction(lat1, log1, lat2, log2)
-        sita=drone_direction-direction
-
-        drone_direction = direction
-        print(distance)
-        print(direction)
-
-
 #kakudo
 # def azimuth(x1, y1, x2, y2):
 #     # Radian角に修正
@@ -141,9 +123,32 @@ def move_take_phote(drone,p,drone_direction):
     setup_photo_burst_mode(drone)
     take_photo_burst(drone)
     return direction
-#スタート地点に行く(写真撮る)
-#p0地点までいく(写真撮る)
-#ゴール地点までいく(写真撮る)
+
+def move_take_phote_moveTo():
+    start = time.time()
+    drone = olympe.Drone("192.168.42.1")
+    drone.connection()
+    drone_direction=0
+    set_gimbal(drone)
+    time.sleep(5)
+    df=pd.read_csv('GPS10_1.csv')
+    assert drone(TakeOff()
+                 >> FlyingStateChanged(state="hovering", _timeout=5)).wait().success()
+    for i,d in df.iterrows():
+        #２分以上の飛行をNGとする
+        if time.time()-start>120:
+            print('=========２分以上の飛行========')
+            break
+        gps=[d[0],d[1],d[2]]
+        drone(moveTo(d[0], d[1], d[2], MoveTo_Orientation_mode.TO_TARGET, 0.0)
+              >> moveToChanged(status='hovering', _timeout=10)).wait()
+    drone(Landing()).wait()
+    drone_gps = drone.get_state(PositionChanged)
+    print(get_distance(goal[0], goal[1], drone_gps['latitude'], drone_gps['longitude'], 8)
+
+
+
+
 def practice():
     drone = olympe.Drone("192.168.42.1")
     drone.connection()
@@ -160,6 +165,7 @@ def practice():
     drone(Landing()).wait()
     drone_gps = drone.get_state(PositionChanged)
     print(get_distance(goal[0], goal[1], drone_gps['latitude'], drone_gps['longitude'], 8))
+
 
 def main():
     start = time.time()
@@ -187,4 +193,5 @@ def main():
 if __name__ == '__main__':
     # practice()
     # main()
-    simulation()
+    # simulation()
+    move_take_phote_moveTo()
