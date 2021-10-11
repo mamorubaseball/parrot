@@ -144,7 +144,9 @@ def move_take_phote_moveTo():
         gps=[d[0],d[1],d[2]]
         drone(moveTo(d[0], d[1], d[2], MoveTo_Orientation_mode.TO_TARGET, 0.0)
               >> moveToChanged(status='hovering', _timeout=10)).wait()
-
+        time.sleep(3)
+        setup_photo_burst_mode(drone)
+        take_photo_burst(drone)
 
     drone(Landing()).wait()
     drone_gps = drone.get_state(PositionChanged)
@@ -197,5 +199,4 @@ def main():
 if __name__ == '__main__':
     # practice()
     # main()
-    # simulation()
     move_take_phote_moveTo()
