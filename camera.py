@@ -10,6 +10,7 @@
 # Don't forget to update the user guide after every modification of this example.
 import csv
 import cv2
+import sys
 import math
 import os
 import queue
@@ -27,6 +28,7 @@ from olympe.messages.ardrone3.PilotingSettings import MaxTilt
 from olympe.messages.ardrone3.GPSSettingsState import GPSFixStateChanged
 
 olympe.log.update_config({"loggers": {"olympe": {"level": "WARNING"}}})
+video='rtsp://192.168.42.1/live'
 
 DRONE_IP = "192.168.42.1"
 
@@ -197,7 +199,7 @@ class StreamingExample(threading.Thread):
         self.drone(MaxTilt(40)).wait().success()
         for i in range(2):
             print("Moving by ({}/3)...".format(i + 1))
-            self.drone(moveBy(1, 0, 0, math.pi, _timeout=20)).wait().success()
+            self.drone(moveBy(0.5, 0, 0, math.pi, _timeout=20)).wait().success()
 
         print("Landing...")
         self.drone(
@@ -221,6 +223,61 @@ class StreamingExample(threading.Thread):
         #     shlex.split('xdg-open {}'.format(mp4_filepath)),
         #     check=True
         # )
+
+#openCVの使い方
+def openCV():
+    # VideoCaptureのインスタンスを作成する。
+    # 引数でカメラを選べれる。
+    cap = cv2.VideoCapture(0)
+    cascade_path='opencv-master/data/haarcascades/haarcascade_frontalface_default.xml'
+
+    if cap.isOpened() is False:
+        print("can not open camera")
+        sys.exit()
+
+    event = threading.Event()
+    cascade = cv2.CascadeClassifier(cascade_path)
+    while True:
+        # VideoCaptureから1フレーム読み込む
+        ret, frame = cap.read()
+        # そのままの大きさだと処理速度がきついのでリサイズ
+        frame = cv2.resize(frame, (int(frame.shape[1] * 0.7), int(frame.shape[0] * 0.7)))
+
+        # 処理速度を高めるために画像をグレースケールに変換したものを用意
+        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+
+        # 顔検出
+        facerect = cascade.detectMultiScale(
+            gray,
+            scaleFactor=1.11,
+            minNeighbors=3,
+            minSize=(100, 100)
+        )
+        if len(facerect) != 0:
+            for x, y, w, h in facerect:
+                # 顔の部分(この顔の部分に対して目の検出をかける)
+                face_gray = gray[y: y + h, x: x + w]
+
+                # くり抜いた顔の部分を表示(処理には必要ない。ただ見たいだけ。)
+                show_face_gray = cv2.resize(face_gray, (int(gray.shape[1]), int(gray.shape[0])))
+                cv2.imshow('face', show_face_gray)
+            # 顔検出した部分に枠を描画
+                cv2.rectangle(
+                    frame,
+                    (x, y),
+                    (x + w, y + h),
+                    (255, 255, 255),
+                    thickness=2
+                )
+
+        # キー入力を1ms待って、k が27（ESC）だったらBreakする
+        k = cv2.waitKey(1)
+        if k == 27:
+            break
+
+
+
+
 
 
 if __name__ == "__main__":

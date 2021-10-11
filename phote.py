@@ -1,14 +1,12 @@
 # -*- coding: UTF-8 -*-
 #!/usr/bin/python3
-
-
 from olympe.messages.camera import (
     set_camera_mode,
     set_photo_mode,
     take_photo,
     photo_progress,
+    gimbal,
 )
-from olympe.messages import gimbal
 from olympe.messages.ardrone3.Piloting import TakeOff, Landing
 import olympe
 import os

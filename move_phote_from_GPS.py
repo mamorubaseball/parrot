@@ -119,6 +119,8 @@ def move_take_phote(drone,p,drone_direction):
 
     drone(moveBy(distance, 0, 0, 0)
           >> FlyingStateChanged(state="hovering", _timeout=5)).wait().success()
+    drone(moveBy(distance, 0, 0, 0)
+          >> FlyingStateChanged(state="hovering", _timeout=5)).wait().success()
 
     setup_photo_burst_mode(drone)
     take_photo_burst(drone)
@@ -142,6 +144,8 @@ def move_take_phote_moveTo():
         gps=[d[0],d[1],d[2]]
         drone(moveTo(d[0], d[1], d[2], MoveTo_Orientation_mode.TO_TARGET, 0.0)
               >> moveToChanged(status='hovering', _timeout=10)).wait()
+
+
     drone(Landing()).wait()
     drone_gps = drone.get_state(PositionChanged)
     print(get_distance(goal[0], goal[1], drone_gps['latitude'], drone_gps['longitude'], 8)
