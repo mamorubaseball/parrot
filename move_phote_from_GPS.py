@@ -12,7 +12,6 @@ import math
 from math import sin, cos, tan, atan2, acos, pi
 import os, csv, time, tempfile
 from phote import *
-# from phote import *
 import csv
 import pandas as pd
 
@@ -133,7 +132,7 @@ def move_take_phote_moveTo():
     drone_direction=0
     set_gimbal(drone)
     time.sleep(5)
-    df=pd.read_csv('GPS10_1.csv')
+    df=pd.read_csv('CSV/GPS10_1.csv')
     assert drone(TakeOff()
                  >> FlyingStateChanged(state="hovering", _timeout=5)).wait().success()
     for i,d in df.iterrows():
@@ -150,9 +149,7 @@ def move_take_phote_moveTo():
 
     drone(Landing()).wait()
     drone_gps = drone.get_state(PositionChanged)
-    print(get_distance(goal[0], goal[1], drone_gps['latitude'], drone_gps['longitude'], 8)
-
-
+    print(get_distance(goal[0], goal[1], drone_gps['latitude'], drone_gps['longitude'], 8))
 
 
 def practice():
@@ -180,7 +177,7 @@ def main():
     drone_direction=0
     set_gimbal(drone)
     time.sleep(5)
-    df=pd.read_csv('GPS10_1.csv')
+    df=pd.read_csv('CSV/GPS10_1.csv')
     assert drone(TakeOff()
                  >> FlyingStateChanged(state="hovering", _timeout=5)).wait().success()
     for i,d in df.iterrows():
@@ -197,6 +194,4 @@ def main():
     drone_gps = drone.get_state(PositionChanged)
     print(get_distance(goal[0], goal[1], drone_gps['latitude'], drone_gps['longitude'], 8))
 if __name__ == '__main__':
-    # practice()
-    # main()
     move_take_phote_moveTo()

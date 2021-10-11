@@ -57,7 +57,7 @@ def get_direction(lat1, log1, lat2, log2):
     return dirN0  # 北をゼロとして、角
 
 def simulation():
-    df = pd.read_csv('GPS10_1.csv')
+    df = pd.read_csv('CSV/GPS10_1.csv')
     start = time.time()
     # print(df.loc[2,:])
 

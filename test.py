@@ -80,8 +80,6 @@ def conect_skycontroller():
     drone(setPilotingSource(source="Controller")).wait()
     drone.disconnect()
 
-def movie():
-
 
 
 
