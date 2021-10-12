@@ -192,34 +192,34 @@ def main():
     assert drone(TakeOff()
                  >> FlyingStateChanged(state="hovering", _timeout=5)).wait().success()
 
-    for i in range(len(df)-1):
-        print('===========droneGPS{}====='.format(get_now_gps(drone)))
-        if time.time() - start > 120:
-            print('=========２分以上の飛行========')
-            break
-        drone_p=df.loc[i,:]
-        gps=df.loc[i+1,:]
-        lat1,log1=drone_p[0],drone_p[1]
-        lat2,log2=gps[0],gps[1]
-        distance = get_distance(lat1, log1, lat2, log2, 8)
-        direction = get_direction(lat1, log1, lat2, log2)
-        sita=drone_direction-direction
-        move_take_phote_sita(drone,distance,sita)
-        drone_direction=direction
-        print('distance='+str(distance))
-        print('direction'+str(direction))
-    # for i,d in df.iterrows():
-    #     #２分以上の飛行をNGとする
-    #     if time.time()-start>120:
+    # for i in range(len(df)-1):
+    #     print('===========droneGPS{}====='.format(get_now_gps(drone)))
+    #     if time.time() - start > 120:
     #         print('=========２分以上の飛行========')
     #         break
-    #     if i==5:
-    #         break
-    #     gps=[d[0],d[1],d[2]]
-    #     direct=move_take_phote(drone, gps,drone_direction)
-    #     drone_direction=direct
-    #     print('======現在地点{}==========='.format(gps))
-    #     print('======ドローン方向{}==========='.format(drone_direction))
+    #     drone_p=df.loc[i,:]
+    #     gps=df.loc[i+1,:]
+    #     lat1,log1=drone_p[0],drone_p[1]
+    #     lat2,log2=gps[0],gps[1]
+    #     distance = get_distance(lat1, log1, lat2, log2, 8)
+    #     direction = get_direction(lat1, log1, lat2, log2)
+    #     sita=drone_direction-direction
+    #     move_take_phote_sita(drone,distance,sita)
+    #     drone_direction=direction
+    #     print('distance='+str(distance))
+    #     print('direction'+str(direction))
+    for i,d in df.iterrows():
+        #２分以上の飛行をNGとする
+        if time.time()-start>120:
+            print('=========２分以上の飛行========')
+            break
+        if i==5:
+            break
+        gps=[d[1],d[0],d[2]]
+        direct=move_take_phote(drone, gps,drone_direction)
+        drone_direction=direct
+        print('======現在地点{}==========='.format(gps))
+        print('======ドローン方向{}==========='.format(drone_direction))
     drone(Landing()).wait()
     drone_gps = drone.get_state(PositionChanged)
     print(get_distance(goal[0], goal[1], drone_gps['latitude'], drone_gps['longitude'], 8))
