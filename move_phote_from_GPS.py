@@ -118,8 +118,6 @@ def move_take_phote(drone,p,drone_direction):
 
     drone(moveBy(distance, 0, 0, 0)
           >> FlyingStateChanged(state="hovering", _timeout=5)).wait().success()
-    drone(moveBy(distance, 0, 0, 0)
-          >> FlyingStateChanged(state="hovering", _timeout=5)).wait().success()
 
     setup_photo_burst_mode(drone)
     take_photo_burst(drone)
@@ -186,12 +184,11 @@ def main():
             print('=========２分以上の飛行========')
             break
         gps=[d[0],d[1],d[2]]
-        d=move_take_phote(drone, gps,drone_direction)
-        drone_direction=d
+        drone_direction=move_take_phote(drone, gps,drone_direction)
         print('======現在地点{}==========='.format(gps))
         print('======ドローン方向{}==========='.format(drone_direction))
     drone(Landing()).wait()
     drone_gps = drone.get_state(PositionChanged)
     print(get_distance(goal[0], goal[1], drone_gps['latitude'], drone_gps['longitude'], 8))
 if __name__ == '__main__':
-    move_take_phote_moveTo()
+    # move_take_phote_moveTo()
