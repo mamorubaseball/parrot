@@ -18,8 +18,7 @@ import pandas as pd
 
 start = [35.7099482, 139.5230989, 1.0]
 p0 = [35.7099068, 139.5231090, 1.0]
-goal = [35.709901, 139.523350, 1.0]
-
+goal = [35.709867, 139.523072, 1.0]
 
 def get_now_gps(drone):
     # Wait for GPS fix
@@ -187,7 +186,7 @@ def main():
     drone.connection()
     drone_direction=0
     set_gimbal(drone)
-    time.sleep(5)
+    time.sleep(2)
     df=pd.read_csv('CSV/GPS10_1.csv')
     assert drone(TakeOff()
                  >> FlyingStateChanged(state="hovering", _timeout=5)).wait().success()
@@ -213,9 +212,9 @@ def main():
         if time.time()-start>120:
             print('=========２分以上の飛行========')
             break
-        if i==5:
+        if i==40:
             break
-        gps=[d[1],d[0],d[2]]
+        gps=[d[0],d[1],d[2]]
         direct=move_take_phote(drone, gps,drone_direction)
         drone_direction=direct
         print('======現在地点{}==========='.format(gps))
