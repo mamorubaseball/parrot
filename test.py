@@ -4,24 +4,23 @@
 関数の説明をここで記入
 drone_by()
 '''
-# import olympe
-# import time
-# # from __future__ import print_function  # python2/3 compatibility for the print function
-# from olympe.messages.ardrone3.Piloting import TakeOff, Landing, moveTo, moveBy, Circle, PCMD
+import olympe
+import time
+from __future__ import print_function  # python2/3 compatibility for the print function
+from olympe.messages.ardrone3.Piloting import TakeOff, Landing, moveTo, moveBy, Circle, PCMD
 from olympe.messages.move import extended_move_by,extended_move_to
-# from olympe.messages.ardrone3.PilotingState import PositionChanged
-# from olympe.messages.ardrone3.GPSSettingsState import GPSFixStateChanged
-# from olympe.messages.ardrone3.GPSSettingsState import HomeChanged
-# from olympe.messages.ardrone3.PilotingState import FlyingStateChanged, moveToChanged
-# from olympe.enums.ardrone3.PilotingState import MoveToChanged_Status as status
-# from olympe.enums.ardrone3.Piloting import MoveTo_Orientation_mode
-# import olympe.enums.move as mode
+from olympe.messages.ardrone3.PilotingState import PositionChanged
+from olympe.messages.ardrone3.GPSSettingsState import GPSFixStateChanged
+from olympe.messages.ardrone3.GPSSettingsState import HomeChanged
+from olympe.messages.ardrone3.PilotingState import FlyingStateChanged, moveToChanged
+from olympe.enums.ardrone3.PilotingState import MoveToChanged_Status as status
+from olympe.enums.ardrone3.Piloting import MoveTo_Orientation_mode
+import olympe.enums.move as mode
 
 #from olympe.messages.ardrone3.PilotingSettings import MaxVerticalSpeed,
 import math
 from math import sin, cos, tan, atan2, acos, pi
 import os, csv, time, tempfile
-# from phote import *
 # from phote import *
 import csv
 import pandas as pd
@@ -74,28 +73,53 @@ def move_by(drone):
     drone(moveBy(0, 0, 0, sita)
           >> FlyingStateChanged(state="hovering", _timeout=5)).wait().success()
     assert drone(Landing()).wait().success()
-def conect_skycontroller():
-    drone = olympe.Drone(SKYCTRL_IP)
-    drone.connect()
-    drone(setPilotingSource(source="Controller")).wait()
-    drone.disconnect()
 
 
+def test_move_sita():
+    drone = olympe.Drone("192.168.42.1")
+    drone.connection()
+    assert drone(TakeOff()
+                 >> FlyingStateChanged(state="hovering", _timeout=5)).wait().success()
+    direction=0.4207913341510827
+    distance = 2.1651991
+    drone(moveBy(0, 0, 0, direction)
+          >> FlyingStateChanged(state="hovering", _timeout=3)).wait().success()
+
+    drone(moveBy(distance, 0, 0, 0)
+          >> FlyingStateChanged(state="hovering", _timeout=3)).wait().success()
+
+    distance = 3.225822
+    direction=1.5707962529117883
+    drone(moveBy(0, 0, 0, direction)
+          >> FlyingStateChanged(state="hovering", _timeout=3)).wait().success()
+
+    drone(moveBy(distance, 0, 0, 0)
+          >> FlyingStateChanged(state="hovering", _timeout=3)).wait().success()
+
+    distance = 3.12916743
+    direction=0.45521898636276587
+    drone(moveBy(0, 0, 0, direction)
+          >> FlyingStateChanged(state="hovering", _timeout=3)).wait().success()
+
+    drone(moveBy(distance, 0, 0, 0)
+          >> FlyingStateChanged(state="hovering", _timeout=3)).wait().success()
+
+    distance = 3.88626398
+    direction=1.0680495561570675
+    drone(moveBy(0, 0, 0, direction)
+          >> FlyingStateChanged(state="hovering", _timeout=3)).wait().success()
+
+    drone(moveBy(distance, 0, 0, 0)
+          >> FlyingStateChanged(state="hovering", _timeout=3)).wait().success()
+
+    drone(Landing()).wait().success()
 
 
-
+# def conect_skycontroller():
+#     drone = olympe.Drone(SKYCTRL_IP)
+#     drone.connect()
+#     drone(setPilotingSource(source="Controller")).wait()
+#     drone.disconnect()
 
 if __name__ == "__main__":
-    # drone = olympe.Drone(DRONE_IP)
-    # drone.connect()
-    # assert drone(TakeOff()).wait().success()
-    # time.sleep(1)
-    # moveBy(drone)
-    # assert drone(Landing).wait().success()
-    # time.sleep(1)
-    sita=2
-    print(sita*180/math.pi)
-
-
-
-
+    test_move_sita()

@@ -178,6 +178,7 @@ def main():
     df=pd.read_csv('CSV/GPS10_1.csv')
     assert drone(TakeOff()
                  >> FlyingStateChanged(state="hovering", _timeout=5)).wait().success()
+
     for i,d in df.iterrows():
         #２分以上の飛行をNGとする
         if time.time()-start>120:
