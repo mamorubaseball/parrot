@@ -113,7 +113,7 @@ def move_take_phote(drone,p,drone_direction):
     print('============sita===========')
     if distance>4:
         distance=4
-    drone(moveBy(0, 0, 0, sita)
+    drone(moveBy(0, 0, 0, direction)
           >> FlyingStateChanged(state="hovering", _timeout=5)).wait().success()
 
     drone(moveBy(distance, 0, 0, 0)
@@ -167,7 +167,6 @@ def practice():
     drone_gps = drone.get_state(PositionChanged)
     print(get_distance(goal[0], goal[1], drone_gps['latitude'], drone_gps['longitude'], 8))
 
-
 def main():
     start = time.time()
     drone = olympe.Drone("192.168.42.1")
@@ -191,5 +190,6 @@ def main():
     drone(Landing()).wait()
     drone_gps = drone.get_state(PositionChanged)
     print(get_distance(goal[0], goal[1], drone_gps['latitude'], drone_gps['longitude'], 8))
+
 if __name__ == '__main__':
-    # move_take_phote_moveTo()
+    main()
