@@ -33,7 +33,6 @@ video_url=''
 
 DRONE_IP = "192.168.42.1"
 
-
 class StreamingExample(threading.Thread):
 
     def __init__(self):
@@ -185,19 +184,6 @@ class StreamingExample(threading.Thread):
     def fly(self):
         # Takeoff, fly, land, ...
         print("Takeoff if necessary...")
-        self.drone(
-            FlyingStateChanged(state="hovering", _policy="check")
-            | FlyingStateChanged(state="flying", _policy="check")
-            | (
-                    GPSFixStateChanged(fixed=1, _timeout=10, _policy="check_wait")
-                    >> (
-                            TakeOff(_no_expect=True)
-                            & FlyingStateChanged(
-                        state="hovering", _timeout=10, _policy="check_wait")
-                    )
-            )
-        ).wait()
-        self.drone(MaxTilt(40)).wait().success()
         for i in range(2):
             print("Moving by ({}/3)...".format(i + 1))
             self.drone(moveBy(0, 0, 0, math.pi, _timeout=20)).wait().success()
