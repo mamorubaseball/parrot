@@ -238,15 +238,15 @@ def rotation():
     drone.connection()
     assert drone(TakeOff()
                  >> FlyingStateChanged(state="hovering", _timeout=5)).wait().success()
-    direction = 0.4207913341510827
-    drone(moveBy(0, 0, 0, direction)
-          >> FlyingStateChanged(state="hovering", _timeout=3)).wait().success()
-    time.sleep(3)
-    print('{}方向回転'.format(direction))
-    n=90 #90度回転する
+    # direction = 0.420791334151082
+    # drone(moveBy(0, 0, 0, direction)
+    #       >> FlyingStateChanged(state="hovering", _timeout=3)).wait().success()
+    # time.sleep(3)
+    n=-90 #90度回転する
     sita=(n/180)*math.pi
     drone(moveBy(0, 0, 0, sita)
           >> FlyingStateChanged(state="hovering", _timeout=3)).wait().success()
+    print('{}方向回転'.format(n))
 
 if __name__ == "__main__":
     rotation()
