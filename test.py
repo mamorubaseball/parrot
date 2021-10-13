@@ -6,7 +6,7 @@ drone_by()
 '''
 import olympe
 import time
-from __future__ import print_function  # python2/3 compatibility for the print function
+#from __future__ import print_function  # python2/3 compatibility for the print function
 from olympe.messages.ardrone3.Piloting import TakeOff, Landing, moveTo, moveBy, Circle, PCMD
 from olympe.messages.move import extended_move_by,extended_move_to
 from olympe.messages.ardrone3.PilotingState import PositionChanged
@@ -37,7 +37,6 @@ from olympe.messages.drone_manager import (
 )
 
 olympe.log.update_config({"loggers": {"olympe": {"level": "INFO"}}})
-
 DRONE_IP = "192.168.42.1"
 SKYCTRL_IP = "192.168.53.1"
 DRONE_SSID = os.environ.get("DRONE_SSID", "Anafi_PC_000000")
@@ -244,12 +243,10 @@ def rotation():
           >> FlyingStateChanged(state="hovering", _timeout=3)).wait().success()
     time.sleep(3)
     print('{}方向回転'.format(direction))
-
-    n=int(input())
+    n=90 #90度回転する
     sita=(n/180)*math.pi
     drone(moveBy(0, 0, 0, sita)
           >> FlyingStateChanged(state="hovering", _timeout=3)).wait().success()
-
 
 if __name__ == "__main__":
     rotation()

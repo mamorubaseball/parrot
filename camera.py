@@ -199,7 +199,7 @@ class StreamingExample(threading.Thread):
         self.drone(MaxTilt(40)).wait().success()
         for i in range(2):
             print("Moving by ({}/3)...".format(i + 1))
-            self.drone(moveBy(0.5, 0, 0, math.pi, _timeout=20)).wait().success()
+            self.drone(moveBy(0, 0, 0, math.pi, _timeout=20)).wait().success()
 
         print("Landing...")
         self.drone(
