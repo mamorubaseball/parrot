@@ -143,7 +143,7 @@ def move_take_phote_moveTo():
     drone_direction=0
     set_gimbal(drone)
     time.sleep(5)
-    df=pd.read_csv('CSV/GPS10_1.csv')
+    df=pd.read_csv('CSV/3D.csv')
     assert drone(TakeOff()
                  >> FlyingStateChanged(state="hovering", _timeout=5)).wait().success()
     for i,d in df.iterrows():
@@ -151,31 +151,11 @@ def move_take_phote_moveTo():
         if time.time()-start>120:
             print('=========２分以上の飛行========')
             break
-        gps=[d[0],d[1],d[2]]
         drone(moveTo(d[0], d[1], d[2], MoveTo_Orientation_mode.TO_TARGET, 0.0)
               >> moveToChanged(status='hovering', _timeout=10)).wait()
         time.sleep(3)
         setup_photo_burst_mode(drone)
         take_photo_burst(drone)
-
-    drone(Landing()).wait()
-    drone_gps = drone.get_state(PositionChanged)
-    print(get_distance(goal[0], goal[1], drone_gps['latitude'], drone_gps['longitude'], 8))
-
-
-def practice():
-    drone = olympe.Drone("192.168.42.1")
-    drone.connection()
-    set_gimbal(drone)
-    time.sleep(5)
-    assert drone(TakeOff()
-                 >> FlyingStateChanged(state="hovering", _timeout=5)).wait().success()
-    move_take_phote(drone,start)
-    print('=====================start=====================================')
-    move_take_phote(drone,p0)
-    print('=====================p0=====================================')
-    move_take_phote(drone,goal)
-    print('=====================GOAL=====================================')
     drone(Landing()).wait()
     drone_gps = drone.get_state(PositionChanged)
     print(get_distance(goal[0], goal[1], drone_gps['latitude'], drone_gps['longitude'], 8))
@@ -187,7 +167,7 @@ def main():
     drone_direction=0
     set_gimbal(drone)
     time.sleep(2)
-    df=pd.read_csv('CSV/hosei.csv')
+    df=pd.read_csv('CSV/3D.csv')
     assert drone(TakeOff()
                  >> FlyingStateChanged(state="hovering", _timeout=5)).wait().success()
 
@@ -212,8 +192,6 @@ def main():
         if time.time()-start>120:
             print('=========２分以上の飛行========')
             break
-        if i==40:
-            break
         gps=[d[0],d[1],d[2]]
         direct=move_take_phote(drone, gps,drone_direction)
         drone_direction=direct
@@ -225,3 +203,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+    # move_take_phote_moveTo()
