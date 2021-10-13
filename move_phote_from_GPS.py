@@ -222,7 +222,7 @@ def move_take_phote(drone,p,drone_direction):
     return direction
 def move_take_phote_2(drone,p,drone_direction):
     gps = get_now_gps(drone)
-    lat1,log1=gps[0],gps[1]
+    lat1,log1=gps['latitude'],gps['longitude']
     lat2,log2=p[0],p[1]
     result = vincenty_inverse(lat1, log1, lat2, log2, 1)
     distance = round(result['distance'], 3)
@@ -235,7 +235,10 @@ def move_take_phote_2(drone,p,drone_direction):
     drone(moveBy(0, 0, 0, sita)
           >> FlyingStateChanged(state="hovering", _timeout=5)).wait().success()
 
-    drone(extended_move_by(distance,0,0,0, max_horizontal_speed=0.1)
+    # drone(moveBy(distance, 0, 0, 0)
+    #       >> FlyingStateChanged(state="hovering", _timeout=5)).wait().success()
+
+    drone(extended_move_by(distance,0,0,0,0.3,0.5,0.5)
           >> FlyingStateChanged(state="hovering", _timeout=5)).wait().success()
 
     setup_photo_burst_mode(drone)

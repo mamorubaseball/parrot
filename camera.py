@@ -29,6 +29,7 @@ from olympe.messages.ardrone3.GPSSettingsState import GPSFixStateChanged
 
 olympe.log.update_config({"loggers": {"olympe": {"level": "WARNING"}}})
 video='rtsp://192.168.42.1/live'
+video_url=''
 
 DRONE_IP = "192.168.42.1"
 

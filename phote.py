@@ -112,15 +112,14 @@ def setup_photo_burst_mode(drone):
 
 
 def main(drone):
-    drone.connection()
     takeoff(drone)
     set_gimbal(drone)
-    time.sleep(10)
     setup_photo_burst_mode(drone)
     take_photo_burst(drone)
     land(drone)
     drone.disconnection()
 
 if __name__ == "__main__":
-    with olympe.Drone(ANAFI_IP) as drone:
-        main(drone)
+    drone = olympe.Drone("192.168.42.1")
+    drone.connection()
+    main(drone)
