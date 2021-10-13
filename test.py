@@ -234,5 +234,22 @@ def test_move_sita():
 
     drone(Landing()).wait().success()
 
+def rotation():
+    drone = olympe.Drone("192.168.42.1")
+    drone.connection()
+    assert drone(TakeOff()
+                 >> FlyingStateChanged(state="hovering", _timeout=5)).wait().success()
+    direction = 0.4207913341510827
+    drone(moveBy(0, 0, 0, direction)
+          >> FlyingStateChanged(state="hovering", _timeout=3)).wait().success()
+    time.sleep(3)
+    print('{}方向回転'.format(direction))
+
+    n=int(input())
+    sita=(n/180)*math.pi
+    drone(moveBy(0, 0, 0, sita)
+          >> FlyingStateChanged(state="hovering", _timeout=3)).wait().success()
+
+
 if __name__ == "__main__":
-    controller()
+    rotation()
