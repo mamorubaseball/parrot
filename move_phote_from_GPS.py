@@ -230,20 +230,20 @@ def move_take_phote_2(drone,p,drone_direction):
     sita=direction-drone_direction
     sita = (sita / 180) * pi
     print('============sita={}==========='.format(str(sita)))
-    if distance>6:
-        distance=6
+    if distance>10:
+        distance=10
     drone(moveBy(0, 0, 0, sita)
           >> FlyingStateChanged(state="hovering", _timeout=5)).wait().success()
 
     # drone(moveBy(distance, 0, 0, 0)
     #       >> FlyingStateChanged(state="hovering", _timeout=5)).wait().success()
 
-    drone(extended_move_by(distance,0,0,0,0.3,0.5,0.5)
+    drone(extended_move_by(distance,0,0,0,2,0.5,0.5)
           >> FlyingStateChanged(state="hovering", _timeout=5)).wait().success()
 
     setup_photo_burst_mode(drone)
     take_photo_burst(drone)
-    return direction
+    return direction,gps
 
 
 def move_take_phote_sita(drone,distance,sita):
@@ -291,19 +291,24 @@ def main():
     set_gimbal(drone)
     time.sleep(2)
     df=pd.read_csv('CSV/3D.csv')
+    drone_gps_lst=[]
     assert drone(TakeOff()
                  >> FlyingStateChanged(state="hovering", _timeout=5)).wait().success()
 
     drone_direction = 0
     for i,d in df.iterrows():
         #２分以上の飛行をNGとする
-        if time.time()-start>120:
+        if time.time()-start>360:
             print('=========２分以上の飛行========')
             break
         gps=[d[0],d[1],d[2]]
-        direct=move_take_phote_2(drone, gps,drone_direction)
+        direct,drone_gps=move_take_phote_2(drone, gps,drone_direction)
         drone_direction=direct
+        time.sleep(3)
+
+        drone_gps_lst.append([drone_gps[0],drone_gps[1]])
         print('======現在地点{}==========='.format(gps))
+        print('=======ドローン地点{}======'.format(drone_gps))
         print('======ドローン方向{}==========='.format(drone_direction))
     drone(Landing()).wait()
     drone_gps = drone.get_state(PositionChanged)
