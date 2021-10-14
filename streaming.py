@@ -3,8 +3,8 @@ from time import sleep
 import olympe
 import math
 import cv2
-from detect_smoke_cascade import detect_smoke_cascade
-from detect_smoke_hsv import detect_smoke_hsv
+#from detect_smoke_cascade import detect_smoke_cascade
+#from detect_smoke_hsv import detect_smoke_hsv
 import time
 from threading import Thread
 
@@ -91,6 +91,6 @@ def main(drone):
     drone.disconnection()
 
 if __name__ == "__main__":
-    ANAFI_IP = "192.168.42.1"
-    with olympe.Drone(ANAFI_IP, loglevel=0) as drone:
-        main(drone)
+    drone = olympe.Drone("192.168.42.1")
+    drone.connection()
+    main(drone)
