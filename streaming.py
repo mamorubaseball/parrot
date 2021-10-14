@@ -32,15 +32,15 @@ def yuv_frame_cb(yuv_frame):
     cv2frame = cv2.cvtColor(yuv_frame.as_ndarray(), cv2_cvt_color_flag)
 
     # We used the drone's camera to detect smoke, so the detect function is used here:
-    detect_output = detect_smoke_hsv(cv2frame)
-    f_handle = open("detection_output.txt", "w")
-    f_handle.write(str(detect_output))
-    f_handle.close()
+    # detect_output = detect_smoke_hsv(cv2frame)
+    # f_handle = open("detection_output.txt", "w")
+    # f_handle.write(str(detect_output))
+    # f_handle.close()
 
     # # Use OpenCV to show this frame
     # # Uncomment to show drone streaming on screen:
-    # cv2.imshow("Olympe Streaming Example", cv2frame)
-    # cv2.waitKey(1)  # please OpenCV for 1 ms...
+    cv2.imshow("Olympe Streaming Example", cv2frame)
+    cv2.waitKey(1)  # please OpenCV for 1 ms...
 
 
 
@@ -93,4 +93,5 @@ def main(drone):
 if __name__ == "__main__":
     drone = olympe.Drone("192.168.42.1")
     drone.connection()
-    main(drone)
+    stream_test(drone)
+    drone.disconnection()
