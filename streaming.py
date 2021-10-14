@@ -90,8 +90,14 @@ def main(drone):
     stream_test(drone)
     drone.disconnection()
 
-if __name__ == "__main__":
+def test():
     drone = olympe.Drone("192.168.42.1")
     drone.connection()
-    stream_test(drone)
+    drone.start_video_streaming()
+    drone.set_streaming_callbacks(raw_cb=yuv_frame_cb)
+    drone.stop_video_streaming()
     drone.disconnection()
+
+
+if __name__ == "__main__":
+    test()
