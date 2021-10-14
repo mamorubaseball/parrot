@@ -263,7 +263,10 @@ def openCV():
             break
 
 
+def non_fly_showvideo():
+    drone = olympe.Drone(DRONE_IP)
 
+    pass
 
 
 
@@ -272,12 +275,11 @@ if __name__ == "__main__":
     # Start the video stream
     streaming_example.start()
     # Perform some live video processing while the drone is flying
-    streaming_example.fly()
+    # streaming_example.fly()
     # Stop the video stream
     streaming_example.stop()
     # Recorded video stream postprocessing
     streaming_example.postprocessing()
-    
-    drone = olympe.Drone(DRONE_IP)
-    drone.connect()
-    assert drone(Landing()).wait().success()
+    # drone = olympe.Drone(DRONE_IP)
+    # drone.connect()
+    # assert drone(Landing()).wait().success()

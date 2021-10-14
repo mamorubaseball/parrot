@@ -68,6 +68,9 @@ def main(argv):
     assert pdraw.wait(PdrawState.Closed, timeout=timeout)
     pdraw.dispose()
 
+def test_pdraw():
+    pass
+
 
 if __name__ == "__main__":
     main(sys.argv[1:])

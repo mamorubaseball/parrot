@@ -21,13 +21,10 @@ import time
 
 # Drone IP
 ANAFI_IP = "192.168.42.1"
-
 # Drone web server URL
 ANAFI_URL = "http://{}/".format(ANAFI_IP)
-
 # Drone media web API URL
 ANAFI_MEDIA_API_URL = ANAFI_URL + "api/v1/media/medias/"
-
 XMP_TAGS_OF_INTEREST = (
     "CameraRollDegree",
     "CameraPitchDegree",
@@ -47,7 +44,6 @@ def takeoff(drone):
 
 def land(drone):
     drone(Landing()).wait().success()
-
 
 def take_photo_burst(drone):
     # take a photo burst and get the associated media_id
