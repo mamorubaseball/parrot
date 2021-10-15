@@ -274,9 +274,8 @@ def move_take_phote_moveTo():
         if time.time()-start>120:
             print('=========２分以上の飛行========')
             break
-        drone(extended_move_to(d['latitude'], d['longitude'], d['altitude'], 0, 0, 1.0, 1.0, 0.5)
+        drone(extended_move_to(d[0], d[1],0,0,0,1.0,1.0,0.5)
               >> FlyingStateChanged(state="hovering", _timeout=5)).wait().success()
-        time.sleep(3)
         setup_photo_burst_mode(drone)
         take_photo_burst(drone)
     drone(Landing()).wait()
