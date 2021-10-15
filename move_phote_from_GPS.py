@@ -238,7 +238,7 @@ def move_take_phote_2(drone,p,drone_direction):
     # drone(moveBy(distance, 0, 0, 0)
     #       >> FlyingStateChanged(state="hovering", _timeout=5)).wait().success()
 
-    drone(extended_move_by(distance,0,0,0,2,0.5,0.5)
+    drone(extended_move_by(distance,0,0,0,1,0.5,0.5)
           >> FlyingStateChanged(state="hovering", _timeout=5)).wait().success()
 
     setup_photo_burst_mode(drone)
