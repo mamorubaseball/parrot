@@ -290,7 +290,7 @@ def main():
     drone_direction=0
     set_gimbal(drone)
     time.sleep(2)
-    df=pd.read_csv('CSV/3D.csv')
+    df=pd.read_csv('CSV/midori.csv')
     drone_gps_lst=[]
     assert drone(TakeOff()
                  >> FlyingStateChanged(state="hovering", _timeout=5)).wait().success()
@@ -306,7 +306,7 @@ def main():
         drone_direction=direct
         time.sleep(3)
 
-        drone_gps_lst.append([drone_gps[0],drone_gps[1]])
+        drone_gps_lst.append(drone_gps)
         print('======現在地点{}==========='.format(gps))
         print('=======ドローン地点{}======'.format(drone_gps))
         print('======ドローン方向{}==========='.format(drone_direction))
