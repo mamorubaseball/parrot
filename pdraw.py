@@ -1,8 +1,21 @@
+# -*- coding: UTF-8 -*-
 import argparse
 import cv2
 import sys
 import time
 from olympe import Pdraw, PDRAW_YUV_FORMAT_I420, PDRAW_YUV_FORMAT_NV12, PdrawState
+from time import sleep
+import olympe
+import math
+import cv2
+#from detect_smoke_cascade import detect_smoke_cascade
+#from detect_smoke_hsv import detect_smoke_hsv
+import time
+from threading import Thread
+import test_opencv
+from olympe.messages.ardrone3.GPSSettingsState import GPSFixStateChanged
+from olympe.messages.ardrone3.Piloting import TakeOff, Landing, moveTo,moveBy,Circle, PCMD
+from olympe.messages.ardrone3.PilotingState import FlyingStateChanged,moveToChanged
 
 DRONE_IP = "192.168.42.1"
 ANAFI_IP = "192.168.42.1"
@@ -69,8 +82,12 @@ def main(argv):
     pdraw.dispose()
 
 def test_pdraw():
-    pass
+    drone = olympe.Drone("192.168.42.1")
+    drone.connection()
+    drone.set_streaming_callbacks(raw_cb=yuv_frame_cb)
 
 
 if __name__ == "__main__":
+    test_pdraw()
+    time.sleep(10)
     main(sys.argv[1:])
