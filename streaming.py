@@ -7,6 +7,10 @@ import cv2
 #from detect_smoke_hsv import detect_smoke_hsv
 import time
 from threading import Thread
+import test_opencv
+from olympe.messages.ardrone3.GPSSettingsState import GPSFixStateChanged
+from olympe.messages.ardrone3.Piloting import TakeOff, Landing, moveTo,moveBy,Circle, PCMD
+from olympe.messages.ardrone3.PilotingState import FlyingStateChanged,moveToChanged
 
 
 def yuv_frame_cb(yuv_frame):
@@ -29,7 +33,10 @@ def yuv_frame_cb(yuv_frame):
     # i.e (3 * height / 2, width) because it's a YUV I420 or NV12 frame
 
     # Use OpenCV to convert the yuv frame to RGB
-    cv2frame = cv2.cvtColor(yuv_frame.as_ndarray(), cv2_cvt_color_flag)
+    img=yuv_frame.as_ndarray()
+    # cv2frame = cv2.cvtColor(yuv_frame.as_ndarray(), cv2_cvt_color_flag)
+    test_opencv.tracking(img)
+
 
     # We used the drone's camera to detect smoke, so the detect function is used here:
     # detect_output = detect_smoke_hsv(cv2frame)
@@ -39,13 +46,15 @@ def yuv_frame_cb(yuv_frame):
 
     # # Use OpenCV to show this frame
     # # Uncomment to show drone streaming on screen:
-    cv2.imshow("Olympe Streaming Example", cv2frame)
-    cv2.waitKey(1)  # please OpenCV for 1 ms...
+
+
+    # cv2.imshow("Olympe Streaming Example", cv2frame)
+    # cv2.waitKey(1)  # please OpenCV for 1 ms...
 
 
 
 
-def change_gimbal_angle(angle=-80):
+def change_gimbal_angle(angle=0):
     """
     not sure if this really works, need to test.
     taken from this link: https://forum.developer.parrot.com/t/how-to-control-gimbal-from-olympe-script/9421/22
@@ -93,10 +102,17 @@ def main(drone):
 def test():
     drone = olympe.Drone("192.168.42.1")
     drone.connection()
+    assert drone(TakeOff()
+                 >> FlyingStateChanged(state="hovering", _timeout=5)).wait().success()
+    change_gimbal_angle(0)
+    time.sleep(3)
     drone.start_video_streaming()
     drone.set_streaming_callbacks(raw_cb=yuv_frame_cb)
     drone.stop_video_streaming()
     drone.disconnection()
+    assert drone(Landing()
+                 >> FlyingStateChanged(state="hovering", _timeout=5)).wait().success()
+
 
 
 if __name__ == "__main__":
