@@ -43,7 +43,7 @@ def main(argv):
     parser.add_argument(
         "-u",
         "--url",
-        default="rtsp://10.202.0.1/live",
+        default="rtsp://192.168.42.1/live",
         help=(
             "Media resource (rtsp:// or file://) URL.\n"
             "See olympe.Pdraw.play documentation"
