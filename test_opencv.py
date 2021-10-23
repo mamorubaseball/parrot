@@ -47,29 +47,22 @@ def trackFace(drone,info,w,pid,pError):
         speed=0
         error=0
 
-    drone(extended_move_by(fb, 0, 0, speed, 1, 0.5, 0.5)
+    drone(extended_move_by(fb, 0, 0, 0, 1, 0.5, 0.5)
           >> FlyingStateChanged(state="hovering", _timeout=5)).wait().success()
     return error
 
-def main():
+def tracking(img):
     drone = olympe.Drone("192.168.42.1")
+    drone.connection()
     pError=0
     while True:
         img=cv2.resize(img,(w,h))
         img,info=findFace(img)
-        pError=trackFace(drone,info,w,pid.pError)
+        pError=trackFace(drone,info,w,pid,pError)
         print('cneter',info[0],'area',info[1])
         cv2.imshow('Output',img)
         cv2.waitKey(1)
 
-
-
-
-
-
-
-
-if __name__ == '__main__':
 
 
 

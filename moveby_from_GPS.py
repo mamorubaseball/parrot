@@ -2,7 +2,7 @@
 from __future__ import print_function  # python2/3 compatibility for the print function
 import olympe
 from olympe.messages.ardrone3.Piloting import TakeOff, Landing, moveTo,moveBy,Circle, PCMD
-from olympe.messages.ardrone3.PilotingState import PositionChanged
+# from olympe.messages.ardrone3.PilotingState import PositionChanged
 from olympe.messages.ardrone3.GPSSettingsState import GPSFixStateChanged
 from olympe.messages.ardrone3.GPSSettingsState import HomeChanged
 from olympe.messages.ardrone3.PilotingState import FlyingStateChanged,moveToChanged
