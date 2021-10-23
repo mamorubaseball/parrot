@@ -165,11 +165,14 @@ def vincenty_inverse(lat1, lon1, lat2, lon2, ellipsoid=None):
         'azimuth1': degrees(α1), # 方位角(始点→終点)
         'azimuth2': degrees(α2), # 方位角(終点→始点)
     }
-
-def simulation():
-    df = pd.read_csv('CSV/3D.csv')
+CSV_FILE='CSV/orange.csv'
+def simulation(CSV_FILE):
+    df = pd.read_csv(CSV_FILE)
     start = time.time()
     # print(df.loc[2,:])
+    direction_ls=[]
+    distance_ls=[]
+    sita_ls=[]
 
     drone_direction = 0
     for i in range(0,len(df)-1):
@@ -181,17 +184,28 @@ def simulation():
         distance=round(result['distance'], 3)
         direction=result['azimuth1']
         sita=direction-drone_direction
-        print(sita)
-        print(distance)
+        sita = (sita / 180) * pi
+        print('============sita={}==========='.format(str(sita)))
+        if distance > 4:
+            print('4メートルを超えた飛行はできません')
+            distance = 4
+        sita_ls.append(sita)
         drone_direction=direction
-
-
+        direction_ls.append(drone_direction)
+        distance_ls.append(distance)
         # print('distance={}'.format(round(result['distance'], 3)))
         # print('方位角度{}'.format(result['azimuth1']))
-        print('======={}======'.format(i))
+    # print(sita_ls)
+    # print('=============================')
+    # print(distance_ls)
+    return sita_ls,distance_ls
 
-def pandas():
-    df=pd.read_csv('CSV/3D.csv')
-    for i, d in df.iterrows():
-        print(d[0],d[1])
-pandas()
+sita,dis=simulation(CSV_FILE)
+for sita, dis in zip(sita, dis):
+    print(sita*180/pi, dis)
+
+# def pandas():
+#     df=pd.read_csv('CSV/orange.csv')
+#     for i, d in df.iterrows():
+#         print(d[0],d[1])
+# pandas()

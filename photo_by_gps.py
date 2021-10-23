@@ -14,10 +14,9 @@ from math import *
 from math import sin, cos, tan, atan2, acos, pi
 import os, csv, time, tempfile
 from phote import *
-
 import csv
 import pandas as pd
-
+from simulation import simulation
 
 start = [35.7099482, 139.5230989, 1.0]
 p0 = [35.7099068, 139.5231090, 1.0]
@@ -247,6 +246,17 @@ def move_take_phote_2(drone,p,drone_direction):
     return direction,gps
 
 
+#スタート地点はいつもの木の上
+def move_lst(drone):
+    sita_lsts,distance_lsts=simulation(CSV_FILE)
+    for sita,dis in zip(sita_lsts,distance_lsts):
+        drone(moveBy(0, 0, 0, sita)
+              >> FlyingStateChanged(state="hovering", _timeout=5)).wait().success()
+
+        drone(moveBy(dis, 0, 0, 0)
+              >> FlyingStateChanged(state="hovering", _timeout=5)).wait().success()
+        setup_photo_burst_mode(drone)
+        take_photo_burst(drone)
 def move_take_phote_sita(drone,distance,sita):
     if distance>4:
         distance=4
@@ -258,6 +268,7 @@ def move_take_phote_sita(drone,distance,sita):
 
     setup_photo_burst_mode(drone)
     take_photo_burst(drone)
+    drone(FlyingStateChanged(state='hovering'))
 
 
 def take_phote_moveTo():
@@ -315,5 +326,9 @@ def main():
     print(get_distance(goal[0], goal[1], drone_gps['latitude'], drone_gps['longitude'], 8))
 
 if __name__ == '__main__':
-    take_phote_moveTo()
-    main()
+    # take_phote_moveTo()
+    drone=olympe.Drone(DRONE_IP)
+    drone.connect()
+    move_lst(drone)
+    drone(Landing()).wait().success()
+

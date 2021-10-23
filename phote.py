@@ -77,6 +77,8 @@ def take_photo_burst(drone):
                     print(resource["resource_id"], xmp_tag, xmp_value)
 
 
+
+
 def set_gimbal(drone):
      drone(gimbal.set_target(
     gimbal_id=0,
