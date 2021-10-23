@@ -68,7 +68,7 @@ def main():
     img_ch = 3  # 3ch画像（RGB）で学習
 
     # データの保存先(自分の環境に応じて適宜変更)
-    SAVE_DATA_DIR_PATH = "C:/github/sample/python/keras/04_img/ex1_data/"
+    SAVE_DATA_DIR_PATH = "C:/github/testcode/python/keras/04_img/ex1_data/"
 
     # ディレクトリがなければ作成
     os.makedirs(SAVE_DATA_DIR_PATH, exist_ok=True)

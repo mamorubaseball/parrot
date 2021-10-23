@@ -22,6 +22,9 @@ import pandas as pd
 start = [35.7099482, 139.5230989, 1.0]
 p0 = [35.7099068, 139.5231090, 1.0]
 goal = [35.709867, 139.523072, 1.0]
+CSV_FILE='CSV/orange.csv'
+DRONE_IP='192.168.42.1'
+
 
 def get_now_gps(drone):
     # Wait for GPS fix
@@ -203,7 +206,6 @@ def vincenty_inverse(lat1, lon1, lat2, lon2, ellipsoid=None):
 
 
 
-
 #回転させて進んだら写真撮る関数[pは
 def move_take_phote(drone,p,drone_direction):
     distance, direction = distance_direction(drone, p)
@@ -230,14 +232,13 @@ def move_take_phote_2(drone,p,drone_direction):
     sita=direction-drone_direction
     sita = (sita / 180) * pi
     print('============sita={}==========='.format(str(sita)))
-    if distance>10:
-        distance=10
+    if distance>4:
+        print('4メートルを超えた飛行はできません')
+        distance=4
     drone(moveBy(0, 0, 0, sita)
           >> FlyingStateChanged(state="hovering", _timeout=5)).wait().success()
-
     # drone(moveBy(distance, 0, 0, 0)
     #       >> FlyingStateChanged(state="hovering", _timeout=5)).wait().success()
-
     drone(extended_move_by(distance,0,0,0,1,0.5,0.5)
           >> FlyingStateChanged(state="hovering", _timeout=5)).wait().success()
 
@@ -259,14 +260,14 @@ def move_take_phote_sita(drone,distance,sita):
     take_photo_burst(drone)
 
 
-def move_take_phote_moveTo():
+def take_phote_moveTo():
     start = time.time()
     drone = olympe.Drone("192.168.42.1")
     drone.connection()
     drone_direction=0
     set_gimbal(drone)
     time.sleep(5)
-    df=pd.read_csv('CSV/midori.csv')
+    df=pd.read_csv(CSV_FILE)
     assert drone(TakeOff()
                  >> FlyingStateChanged(state="hovering", _timeout=5)).wait().success()
     for i,d in df.iterrows():
@@ -284,12 +285,12 @@ def move_take_phote_moveTo():
 
 def main():
     start = time.time()
-    drone = olympe.Drone("192.168.42.1")
+    drone = olympe.Drone(DRONE_IP)
     drone.connection()
     drone_direction=0
     set_gimbal(drone)
     time.sleep(2)
-    df=pd.read_csv('CSV/midori.csv')
+    df=pd.read_csv(CSV_FILE)
     drone_gps_lst=[]
     assert drone(TakeOff()
                  >> FlyingStateChanged(state="hovering", _timeout=5)).wait().success()
@@ -314,4 +315,5 @@ def main():
     print(get_distance(goal[0], goal[1], drone_gps['latitude'], drone_gps['longitude'], 8))
 
 if __name__ == '__main__':
-    move_take_phote_moveTo()
+    take_phote_moveTo()
+    main()
