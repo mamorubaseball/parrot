@@ -1,18 +1,26 @@
 """
-このスクリプトは画像検出ができるかテストするもの。基本スクリプト
+検出したい物体の入力から物体を検出し、少し近づき写真を取るスクリプト
+
 """
+import cv2
 import os
 import argparse
-import cv2
-import sys
 import time
 from olympe import Pdraw, PDRAW_YUV_FORMAT_I420, PDRAW_YUV_FORMAT_NV12, PdrawState
+import sys
+import numpy as np
+import olympe
+from olympe.messages.ardrone3.Piloting import TakeOff, Landing, moveTo, moveBy, Circle, PCMD
+from olympe.messages.move import extended_move_by,extended_move_to
+from olympe.messages.ardrone3.PilotingState import FlyingStateChanged, moveToChanged
 
+#飛行した状態で物体検知(顔認証ができるかテスト)
 DRONE_IP = "192.168.42.1"
 ANAFI_IP = "192.168.42.1"
 
 
-def yuv_frame_cb(yuv_frame):
+
+def yuv_frame_cb(yuv_frame,drone):
     """
     This function will be called by Olympe for each decoded YUV frame.
         :type yuv_frame: olympe.VideoFrame
@@ -39,10 +47,13 @@ def yuv_frame_cb(yuv_frame):
 
     #灰色に変換して、imgにする
     img = cv2.cvtColor(cv2frame, cv2.COLOR_RGB2GRAY)
-    img,info=findFace(img)
+    img,info=Find_Detection(img)
+    track_drone(info)
+
     # Use OpenCV to show this frame
     cv2.imshow("Olympe Pdraw Example", img)
     cv2.waitKey(1)  # please OpenCV for 1 ms...
+
 
 fbRange = [6200, 6800]
 pid = [0.4, 0.4, 0]
@@ -50,10 +61,15 @@ w, h = 360, 240
 fb = 0
 
 
-def findFace(img):
+"""
+カスケードフィルターの変更で検知する物体を変更可能
+"""
+def Find_Detection(img):
     # shift+右クリックでパスのコピーwinとlinux
     # face_cascade_path='C:\Users\manak\AppData\Local\Packages\CanonicalGroupLimited.Ubuntu18.04onWindows_79rhkp1fndgsc\LocalState\rootfs\home\manaki\awesome\mamoru\parrot2\haarcascade_frontalface_alt.xml'
     face_cascade_path = 'haarcascade_frontalface_alt.xml'
+    wall_lack_cascade_path=''
+
 
     # カスケードファイルが存在するか
     if os.path.isfile(face_cascade_path) is False:
@@ -81,7 +97,36 @@ def findFace(img):
     else:
         return img, [[0, 0], 0]
 
-def main(argv):
+def tracking(drone,info,w,pid,pError):
+    x,y=info[0]
+    area=info[1]
+    fb=0
+
+    ###この辺のコードの理解がまだ少し足りていない###
+    error=x-w//2
+    speed=pid[0]*error+pid[1]*(error-pError)
+    speed=int(np.clip(speed,-100,100))
+    if area>fbRange[0] and area<fbRange[1]:
+        fb=0
+    elif area>fbRange[1]:
+        fb=-20
+    elif area<fbRange[0] and area !=0:
+        fb=20
+
+    if x==0:
+        speed=0
+        error=0
+    drone(extended_move_by(fb, 0, 0, speed, 1, 0.5, 0.5)
+          >> FlyingStateChanged(state="hovering", _timeout=5)).wait().success()
+    return error
+
+def detail(drone,info,w,pid,pError):
+    x,y=info[0]
+    area=info[1]
+    fb=0
+
+
+def main(argv,drone):
     parser = argparse.ArgumentParser(description="Olympe Pdraw Example")
     parser.add_argument(
         "-u",
@@ -95,7 +140,7 @@ def main(argv):
     parser.add_argument("-m", "--media-name", default="DefaultVideo")
     args = parser.parse_args(argv)
     pdraw = Pdraw()
-    pdraw.set_callbacks(raw_cb=yuv_frame_cb)
+    pdraw.set_callbacks(raw_cb=yuv_frame_cb(drone))
     pdraw.play(url=args.url, media_name=args.media_name)
     assert pdraw.wait(PdrawState.Playing, timeout=5)
     if args.url.endswith("/live"):
@@ -111,5 +156,21 @@ def main(argv):
     assert pdraw.wait(PdrawState.Closed, timeout=timeout)
     pdraw.dispose()
 
-if __name__ == "__main__":
-    main(sys.argv[1:])
+if __name__ == '__main__':
+    drone = olympe.Drone("192.168.42.1")
+    drone.connect()
+    drone(TakeOff()).wait().success()
+    drone(moveBy(0, 0, 0.5, 0)
+        >> FlyingStateChanged(state="hovering", _timeout=5)).wait().success()
+    main(sys.argv[1:],drone)
+
+    assert drone(Landing()).wait().success()
+    drone.disconnect()
+
+
+
+
+
+
+
+
