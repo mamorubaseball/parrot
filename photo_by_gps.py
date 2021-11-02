@@ -247,8 +247,13 @@ def move_take_phote_2(drone,p,drone_direction):
 
 
 #スタート地点はいつもの木の上
-def move_lst(drone):
+def move_lst():
+    drone=olympe.Drone(DRONE_IP)
+    drone.connect()
+    drone(TakeOff()
+          >> FlyingStateChanged(state="hovering", _timeout=5)).wait().success()
     sita_lsts,distance_lsts=simulation(CSV_FILE)
+
     for sita,dis in zip(sita_lsts,distance_lsts):
         drone(moveBy(0, 0, 0, sita)
               >> FlyingStateChanged(state="hovering", _timeout=5)).wait().success()
@@ -258,6 +263,8 @@ def move_lst(drone):
 
         setup_photo_burst_mode(drone)
         take_photo_burst(drone)
+
+    drone(Landing()).wait().success()
 def move_take_phote_sita(drone,distance,sita):
     if distance>4:
         distance=4
@@ -303,10 +310,9 @@ def main():
     set_gimbal(drone)
     time.sleep(2)
     df=pd.read_csv(CSV_FILE)
-    drone_gps_lst=[]
+    drone_gps_lst = []
     assert drone(TakeOff()
                  >> FlyingStateChanged(state="hovering", _timeout=5)).wait().success()
-
     drone_direction = 0
     for i in range(len(df)):
         d=df.loc[i,:]
@@ -329,9 +335,6 @@ def main():
 
 if __name__ == '__main__':
     # take_phote_moveTo()
-    # drone=olympe.Drone(DRONE_IP)
-    # drone.connect()
-    # move_lst(drone)
-    # drone(Landing()).wait().success()
-    main()
+    move_lst()
+    # main()
 
