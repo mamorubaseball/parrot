@@ -20,7 +20,9 @@ from olympe.messages.ardrone3.Piloting import moveBy
 from olympe.messages.ardrone3.PilotingState import FlyingStateChanged
 from olympe.messages.ardrone3.PilotingSettings import MaxTilt
 from olympe.messages.ardrone3.GPSSettingsState import GPSFixStateChanged
-
+import time
+from olympe.messages.ardrone3.PilotingSettings import MaxTilt, MaxAltitude
+from olympe.messages.ardrone3.PilotingSettingsState import MaxAltitudeChanged
 
 olympe.log.update_config({"loggers": {"olympe": {"level": "WARNING"}}})
 
@@ -178,19 +180,23 @@ class StreamingExample(threading.Thread):
     def fly(self):
         # Takeoff, fly, land, ...
         print("Takeoff if necessary...")
-        self.drone(
-            FlyingStateChanged(state="hovering", _policy="check")
-            | FlyingStateChanged(state="flying", _policy="check")
-            | (
-                GPSFixStateChanged(fixed=1, _timeout=10, _policy="check_wait")
-                >> (
-                    TakeOff(_no_expect=True)
-                    & FlyingStateChanged(
-                        state="hovering", _timeout=10, _policy="check_wait")
-                )
-            )
-        ).wait()
-        time.sleep(4)
+
+        max_altitude = 2.0
+        self.drone(MaxAltitude(max_altitude)).wait()
+        self.drone(TakeOff()).wait().success()
+        # self.drone(
+        #     FlyingStateChanged(state="hovering", _policy="check")
+        #     | FlyingStateChanged(state="flying", _policy="check")
+        #     | (
+        #         GPSFixStateChanged(fixed=1, _timeout=10, _policy="check_wait")
+        #         >> (
+        #             TakeOff(_no_expect=True)
+        #             & FlyingStateChanged(
+        #                 state="hovering", _timeout=10, _policy="check_wait")
+        #         )
+        #     )
+        # ).wait()
+        time.sleep(10)
 #         self.drone(MaxTilt(40)).wait().success()
 #         for i in range(3):
 #             print("Moving by ({}/3)...".format(i + 1))
