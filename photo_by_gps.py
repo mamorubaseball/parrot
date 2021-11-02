@@ -333,6 +333,8 @@ def main():
     drone_gps = drone.get_state(PositionChanged)
     print(get_distance(goal[0], goal[1], drone_gps['latitude'], drone_gps['longitude'], 8))
 
+
+
 if __name__ == '__main__':
     # take_phote_moveTo()
     move_lst()

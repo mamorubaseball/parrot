@@ -162,10 +162,6 @@ def main():
 def move_to(drone):
     assert drone(TakeOff()).wait().success()
     time.sleep(2)
-
-    drone(moveTo(start[0],start[1],start[2],MoveTo_Orientation_mode.TO_TARGET,0.0)
-        >> moveToChanged(status='DONE', _timeout=10)).wait()
-
     drone(extended_move_to(latitude=goal[0], longitude=goal[1], altitude=goal[2],max_horizontal_speed=0.1))
     assert drone(Landing()).wait().success()
     time.sleep(3)

@@ -166,7 +166,7 @@ def vincenty_inverse(lat1, lon1, lat2, lon2, ellipsoid=None):
         'azimuth1': degrees(α1), # 方位角(始点→終点)
         'azimuth2': degrees(α2), # 方位角(終点→始点)
     }
-CSV_FILE='CSV/orange.csv'
+CSV_FILE='CSV/GPS.csv'
 def simulation(CSV_FILE):
     df = pd.read_csv(CSV_FILE)
     start = time.time()
@@ -177,8 +177,13 @@ def simulation(CSV_FILE):
 
     drone_direction = 0
     for i in range(0,len(df)-1):
-        drone=df.loc[i,:]
+        drone=df.iloc[i,:]
         gps=df.loc[i+1,:]
+        print('==================')
+        print(drone[0],drone[1])
+        print(gps[0],gps[1])
+        print('==================')
+
         lat1,log1=drone[0],drone[1]
         lat2,log2=gps[0],gps[1]
         result = vincenty_inverse(lat1, log1, lat2, log2, 1)
