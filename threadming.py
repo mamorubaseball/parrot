@@ -21,9 +21,12 @@ from olympe.messages.ardrone3.PilotingState import FlyingStateChanged
 from olympe.messages.ardrone3.PilotingSettings import MaxTilt
 from olympe.messages.ardrone3.GPSSettingsState import GPSFixStateChanged
 import time
-
 from olympe.messages.ardrone3.PilotingSettings import MaxTilt, MaxAltitude
 from olympe.messages.ardrone3.PilotingSettingsState import MaxAltitudeChanged
+
+
+
+
 
 olympe.log.update_config({"loggers": {"olympe": {"level": "WARNING"}}})
 
@@ -154,7 +157,11 @@ class StreamingExample(threading.Thread):
         # Use OpenCV to convert the yuv frame to RGB
         cv2frame = cv2.cvtColor(yuv_frame.as_ndarray(), cv2_cvt_color_flag)
         # Use OpenCV to show this frame
-        cv2.imshow(window_name, cv2frame)
+
+        img = cv2.cvtColor(cv2frame, cv2.COLOR_RGB2GRAY)
+        img, info = self.Find_Detection(img)
+
+        cv2.imshow(window_name, img)
         cv2.waitKey(1)  # please OpenCV for 1 ms...
 
     def run(self):
@@ -215,6 +222,41 @@ class StreamingExample(threading.Thread):
         #     shlex.split('xdg-open {}'.format(mp4_filepath)),
         #     check=True
         # )
+        """
+        カスケードフィルターの変更で検知する物体を変更可能
+        """
+
+    def Find_Detection(self,img):
+        # shift+右クリックでパスのコピーwinとlinux
+        # face_cascade_path='C:\Users\manak\AppData\Local\Packages\CanonicalGroupLimited.Ubuntu18.04onWindows_79rhkp1fndgsc\LocalState\rootfs\home\manaki\awesome\mamoru\parrot2\haarcascade_frontalface_alt.xml'
+        face_cascade_path = 'haarcascade_frontalface_alt.xml'
+        wall_lack_cascade_path = ''
+
+        # カスケードファイルが存在するか
+        if os.path.isfile(face_cascade_path) is False:
+            print('ファイルが存在しない')
+            return
+
+        faceCascade = cv2.CascadeClassifier(face_cascade_path)
+        # imgGray=cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
+        imgGray = img
+        faces = faceCascade.detectMultiScale(imgGray, 1.2, 8)
+        myFaceListC = []
+        myFaceListArea = []
+        for (x, y, w, h) in faces:
+            cv2.rectangle(img, (x, y), (x + w, y + h), (0, 0, 225), 2)
+            cx = x + w // 2
+            cy = y + h // 2
+            area = w * h
+            myFaceListC.append([cx, cy])
+            myFaceListArea.append(area)
+        # img⇛カラーに変換
+        img = cv2.cvtColor(img, cv2.CV_GRAY2BGR)
+        if len(myFaceListArea) != 0:
+            i = myFaceListArea.index(max(myFaceListArea))
+            return img, [myFaceListC[i], myFaceListArea[i]]
+        else:
+            return img, [[0, 0], 0]
 
 
 if __name__ == "__main__":
@@ -222,7 +264,7 @@ if __name__ == "__main__":
     # Start the video stream
     streaming_example.start()
     # Perform some live video processing while the drone is flying
-    streaming_example.fly()
+    # streaming_example.fly()
     # Stop the video stream
     streaming_example.stop()
     # Recorded video stream postprocessing

@@ -48,7 +48,7 @@ def yuv_frame_cb(yuv_frame,drone):
     #灰色に変換して、imgにする
     img = cv2.cvtColor(cv2frame, cv2.COLOR_RGB2GRAY)
     img,info=Find_Detection(img)
-    track_drone(info)
+    tracking(info)
 
     # Use OpenCV to show this frame
     cv2.imshow("Olympe Pdraw Example", img)
