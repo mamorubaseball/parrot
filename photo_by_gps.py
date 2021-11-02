@@ -18,6 +18,9 @@ import csv
 import pandas as pd
 from simulation import simulation
 
+from olympe.messages.ardrone3.PilotingSettings import MaxTilt, MaxAltitude
+from olympe.messages.ardrone3.PilotingSettingsState import MaxAltitudeChanged
+
 start = [35.7099482, 139.5230989, 1.0]
 p0 = [35.7099068, 139.5231090, 1.0]
 goal = [35.709867, 139.523072, 1.0]
@@ -250,11 +253,16 @@ def move_take_phote_2(drone,p,drone_direction):
 def move_lst():
     drone=olympe.Drone(DRONE_IP)
     drone.connect()
+    max_altitude=2.0
+    drone(MaxAltitude(max_altitude)).wait()
     drone(TakeOff()
           >> FlyingStateChanged(state="hovering", _timeout=5)).wait().success()
     sita_lsts,distance_lsts=simulation(CSV_FILE)
 
     for sita,dis in zip(sita_lsts,distance_lsts):
+        if drone.get_state(MaxAltitudeChanged)["current"] >3.0:
+            print('高度が高すぎます')
+            break
         drone(moveBy(0, 0, 0, sita)
               >> FlyingStateChanged(state="hovering", _timeout=5)).wait().success()
 
@@ -307,7 +315,10 @@ def main():
     drone = olympe.Drone(DRONE_IP)
     drone.connection()
     drone_direction=0
+    max_altitude=2.0
+
     set_gimbal(drone)
+    drone(MaxAltitude(max_altitude)).wait()
     time.sleep(2)
     df=pd.read_csv(CSV_FILE)
     drone_gps_lst = []
@@ -319,6 +330,9 @@ def main():
         #２分以上の飛行をNGとする
         if time.time()-start>360:
             print('=========２分以上の飛行========')
+            break
+        if drone.get_state(MaxAltitudeChanged)["current"] >3.0:
+            print('高度が高すぎます')
             break
         gps=[d[0],d[1],d[2]]
         direct,drone_gps=move_take_phote_2(drone, gps,drone_direction)
@@ -332,8 +346,6 @@ def main():
     drone(Landing()).wait()
     drone_gps = drone.get_state(PositionChanged)
     print(get_distance(goal[0], goal[1], drone_gps['latitude'], drone_gps['longitude'], 8))
-
-
 
 if __name__ == '__main__':
     # take_phote_moveTo()

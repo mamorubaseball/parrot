@@ -13,7 +13,7 @@ import math
 from math import *
 from math import sin, cos, tan, atan2, acos, pi
 import os, csv, time, tempfile
-from parrot.simulation import simulation
+
 import csv
 import pandas as pd
 
@@ -40,14 +40,14 @@ def prepare(drone):
     drone.disconnect()
 CSV_FILE='CSV/GPS.csv'
 def move_by(drone):
-    sita_l,dis_l=simulation(CSV_FILE)
+    #sita_l,dis_l=simulation(CSV_FILE)
     assert drone(TakeOff()).wait().success()
     time.sleep(3)
 
-    drone(moveBy(0, 0, 0, sita_l[0])
+    drone(moveBy(0, 0, 0, 3.358606983146007)
           >> FlyingStateChanged(state="hovering", _timeout=5)).wait().success()
 
-    drone(moveBy(dis_l[0], 0, 0, 0)
+    drone(moveBy(2.536, 0, 0, 0)
           >> FlyingStateChanged(state="hovering", _timeout=5)).wait().success()
     assert drone(Landing()).wait().success()
 

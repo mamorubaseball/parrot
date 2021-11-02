@@ -166,7 +166,7 @@ def vincenty_inverse(lat1, lon1, lat2, lon2, ellipsoid=None):
         'azimuth1': degrees(α1), # 方位角(始点→終点)
         'azimuth2': degrees(α2), # 方位角(終点→始点)
     }
-CSV_FILE='CSV/GPS.csv'
+CSV_FILE='CSV/orange.csv'
 def simulation(CSV_FILE):
     df = pd.read_csv(CSV_FILE)
     start = time.time()
@@ -208,7 +208,7 @@ def simulation(CSV_FILE):
 
 sita,dis=simulation(CSV_FILE)
 for sita, dis in zip(sita, dis):
-    print(sita*180/pi, dis)
+    print(sita*180/pi,dis)
 
 # def pandas():
 #     df=pd.read_csv('CSV/orange.csv')
