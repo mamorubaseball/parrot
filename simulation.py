@@ -1,3 +1,4 @@
+# coding:utf-8
 import pandas as pd
 # from move_phote_from_GPS import get_distance,get_direction
 import time
@@ -47,15 +48,15 @@ def get_distance(lat1, log1, lat2, log2, precision):
         distance = round(decimal_no * distance / 1) / decimal_no
         return distance
 def get_direction(lat1, log1, lat2, log2):
-    Y = math.cos(log2 * math.pi / 180) * math.sin(lat2 * math.pi / 180 - lat1 * math.pi / 180);
+    Y = math.cos(log2 * math.pi / 180) * math.sin(lat2 * math.pi / 180 - lat1 * math.pi / 180)
     X = math.cos(log1 * math.pi / 180) * math.sin(log2 * math.pi / 180) - math.sin(log1 * math.pi / 180) * math.cos(
         log2 * math.pi / 180) * math.cos(lat2 * math.pi / 180 - lat1 * math.pi / 180)
-    dirE0 = 180 * math.atan2(Y, X) / math.pi;  # 東向けがゼロ
+    dirE0 = 180 * math.atan2(Y, X) / math.pi
     if dirE0 < 0:
         dirE0 += 360
     dirN0 = (dirE0 + 90) % 360
     dirN0 = dirN0 / 360 * math.pi
-    return dirN0  # 北をゼロとして、角
+    return dirN0
 
 
 # 楕円体
@@ -99,8 +100,8 @@ def vincenty_inverse(lat1, lon1, lat2, lon2, ellipsoid=None):
 
     # 計算時に必要な長軸半径(a)と扁平率(ƒ)を定数から取得し、短軸半径(b)を算出する
     # 楕円体が未指定の場合はGRS80の値を用いる
-    a, ƒ = GEODETIC_DATUM.get(ellipsoid, GEODETIC_DATUM.get(ELLIPSOID_GRS80))
-    b = (1 - ƒ) * a
+    a, f = GEODETIC_DATUM.get(ellipsoid, GEODETIC_DATUM.get(ELLIPSOID_GRS80))
+    b = (1 - f) * a
 
     φ1 = radians(lat1)
     φ2 = radians(lat2)
@@ -108,8 +109,8 @@ def vincenty_inverse(lat1, lon1, lat2, lon2, ellipsoid=None):
     λ2 = radians(lon2)
 
     # 更成緯度(補助球上の緯度)
-    U1 = atan((1 - ƒ) * tan(φ1))
-    U2 = atan((1 - ƒ) * tan(φ2))
+    U1 = atan((1 - f) * tan(φ1))
+    U2 = atan((1 - f) * tan(φ2))
 
     sinU1 = sin(U1)
     sinU2 = sin(U2)
@@ -133,9 +134,9 @@ def vincenty_inverse(lat1, lon1, lat2, lon2, ellipsoid=None):
         sinα = cosU1 * cosU2 * sinλ / sinσ
         cos2α = 1 - sinα ** 2
         cos2σm = cosσ - 2 * sinU1 * sinU2 / cos2α
-        C = ƒ / 16 * cos2α * (4 + ƒ * (4 - 3 * cos2α))
+        C = f / 16 * cos2α * (4 + f * (4 - 3 * cos2α))
         λʹ = λ
-        λ = L + (1 - C) * ƒ * sinα * (σ + C * sinσ * (cos2σm + C * cosσ * (-1 + 2 * cos2σm ** 2)))
+        λ = L + (1 - C) * f * sinα * (σ + C * sinσ * (cos2σm + C * cosσ * (-1 + 2 * cos2σm ** 2)))
 
         # 偏差が.000000000001以下ならbreak
         if abs(λ - λʹ) <= 1e-12:

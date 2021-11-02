@@ -253,8 +253,9 @@ def move_lst(drone):
         drone(moveBy(0, 0, 0, sita)
               >> FlyingStateChanged(state="hovering", _timeout=5)).wait().success()
 
-        drone(moveBy(dis, 0, 0, 0)
+        drone(extended_move_by(dis, 0, 0, 0, 1, 0.5, 0.5)
               >> FlyingStateChanged(state="hovering", _timeout=5)).wait().success()
+
         setup_photo_burst_mode(drone)
         take_photo_burst(drone)
 def move_take_phote_sita(drone,distance,sita):
@@ -307,7 +308,8 @@ def main():
                  >> FlyingStateChanged(state="hovering", _timeout=5)).wait().success()
 
     drone_direction = 0
-    for i,d in df.iterrows():
+    for i in range(len(df)):
+        d=df.loc[i,:]
         #２分以上の飛行をNGとする
         if time.time()-start>360:
             print('=========２分以上の飛行========')
@@ -327,8 +329,9 @@ def main():
 
 if __name__ == '__main__':
     # take_phote_moveTo()
-    drone=olympe.Drone(DRONE_IP)
-    drone.connect()
-    move_lst(drone)
-    drone(Landing()).wait().success()
+    # drone=olympe.Drone(DRONE_IP)
+    # drone.connect()
+    # move_lst(drone)
+    # drone(Landing()).wait().success()
+    main()
 
