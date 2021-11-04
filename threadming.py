@@ -13,6 +13,7 @@ import subprocess
 import tempfile
 import threading
 import traceback
+import numpy as np
 
 import olympe
 from olympe.messages.ardrone3.Piloting import TakeOff, Landing
@@ -225,7 +226,7 @@ class StreamingExample(threading.Thread):
         # Takeoff, fly, land, ...
         print("Takeoff if necessary...")
 
-        max_altitude = 2.0
+        max_altitude = 1.5
         self.drone(MaxAltitude(max_altitude)).wait()
         self.drone(TakeOff()
               >> FlyingStateChanged(state="hovering", _timeout=5)).wait().success()
@@ -233,7 +234,7 @@ class StreamingExample(threading.Thread):
             print('高度が高すぎます')
             self.drone(Landing()).wait().success()
 
-        time.sleep(10)
+        time.sleep(20)
         print("Landing...")
         self.drone(
             Landing()
@@ -285,7 +286,7 @@ class StreamingExample(threading.Thread):
             myFaceListC.append([cx, cy])
             myFaceListArea.append(area)
         # img⇛カラーに変換
-        img = cv2.cvtColor(img, cv2.CV_GRAY2BGR)
+        #img = cv2.cvtColor(img, cv2.CV_GRAY2BGR)
         if len(myFaceListArea) != 0:
             i = myFaceListArea.index(max(myFaceListArea))
             return img, [myFaceListC[i], myFaceListArea[i]]
