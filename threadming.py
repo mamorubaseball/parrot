@@ -48,6 +48,8 @@ class StreamingExample(threading.Thread):
         self.h264_stats_writer.writeheader()
         self.frame_queue = queue.Queue()
         self.flush_queue_lock = threading.Lock()
+        self.max_altitude = 2.0
+        self.drone(MaxAltitude(self.max_altitude)).wait()
 
         super().__init__()
         super().start()

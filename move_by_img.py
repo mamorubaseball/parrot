@@ -109,9 +109,9 @@ def tracking(drone,info,w,pid,pError):
     if area>fbRange[0] and area<fbRange[1]:
         fb=0
     elif area>fbRange[1]:
-        fb=-20
+        fb=-0.2
     elif area<fbRange[0] and area !=0:
-        fb=20
+        fb=0.2
 
     if x==0:
         speed=0
