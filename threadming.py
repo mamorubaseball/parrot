@@ -23,6 +23,7 @@ from olympe.messages.ardrone3.GPSSettingsState import GPSFixStateChanged
 import time
 from olympe.messages.ardrone3.PilotingSettings import MaxTilt, MaxAltitude
 from olympe.messages.ardrone3.PilotingSettingsState import MaxAltitudeChanged
+from olympe.messages.move import extended_move_by,extended_move_to
 
 
 
@@ -50,6 +51,10 @@ class StreamingExample(threading.Thread):
         self.flush_queue_lock = threading.Lock()
         self.max_altitude = 2.0
         self.drone(MaxAltitude(self.max_altitude)).wait()
+        self.w=360
+        self.h=240
+        self.pid=[0.4,0.4,0]
+        self.pError=0
 
         super().__init__()
         super().start()
@@ -162,9 +167,35 @@ class StreamingExample(threading.Thread):
 
         img = cv2.cvtColor(cv2frame, cv2.COLOR_RGB2GRAY)
         img, info = self.Find_Detection(img)
-
+        self.pError=self.tracking(info,pError=self.pError)
         cv2.imshow(window_name, img)
         cv2.waitKey(1)  # please OpenCV for 1 ms...
+
+    def tracking(self,info,pError):
+        x, y = info[0]
+        area = info[1]
+        w,h=self.w,self.h
+        pid=self.pid
+        fbRange = [6200, 6800]
+        fb = 0
+
+        ###この辺のコードの理解がまだ少し足りていない###
+        error = x - w // 2
+        speed = pid[0] * error + pid[1] * (error - pError)
+        speed = int(np.clip(speed, -100, 100))
+        if area > fbRange[0] and area < fbRange[1]:
+            fb = 0
+        elif area > fbRange[1]:
+            fb = -0.05
+        elif area < fbRange[0] and area != 0:
+            fb = 0.05
+
+        if x == 0:
+            speed = 0
+            error = 0
+        self.drone(extended_move_by(0, fb, 0, speed, 1, 0.5, 0.5)
+              >> FlyingStateChanged(state="hovering", _timeout=5)).wait().success()
+        return error
 
     def run(self):
         window_name = "Olympe Streaming Example"
@@ -196,18 +227,18 @@ class StreamingExample(threading.Thread):
 
         max_altitude = 2.0
         self.drone(MaxAltitude(max_altitude)).wait()
-
-
-
-
-
+        self.drone(TakeOff()
+              >> FlyingStateChanged(state="hovering", _timeout=5)).wait().success()
         if self.drone.get_state(MaxAltitudeChanged)["current"] >3.0:
             print('高度が高すぎます')
             self.drone(Landing()).wait().success()
 
         time.sleep(10)
         print("Landing...")
-        self.drone(Landing()).wait().success()
+        self.drone(
+            Landing()
+            >> FlyingStateChanged(state="landed", _timeout=5)
+        ).wait()
         print("Landed\n")
 
     def postprocessing(self):
@@ -254,7 +285,7 @@ class StreamingExample(threading.Thread):
             myFaceListC.append([cx, cy])
             myFaceListArea.append(area)
         # img⇛カラーに変換
-        # img = cv2.cvtColor(img, cv2.CV_GRAY2BGR)
+        img = cv2.cvtColor(img, cv2.CV_GRAY2BGR)
         if len(myFaceListArea) != 0:
             i = myFaceListArea.index(max(myFaceListArea))
             return img, [myFaceListC[i], myFaceListArea[i]]
