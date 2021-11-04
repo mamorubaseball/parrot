@@ -4,6 +4,12 @@ import sys
 import time
 from olympe import Pdraw, PDRAW_YUV_FORMAT_I420, PDRAW_YUV_FORMAT_NV12, PdrawState
 
+from olympe.messages.ardrone3.PilotingSettings import MaxTilt, MaxAltitude
+from olympe.messages.ardrone3.PilotingSettingsState import MaxAltitudeChanged
+from olympe.messages.ardrone3.Piloting import TakeOff, Landing, moveTo, moveBy, Circle, PCMD
+import olympe
+from olympe.messages.ardrone3.PilotingState import FlyingStateChanged, moveToChanged
+
 DRONE_IP = "192.168.42.1"
 ANAFI_IP = "192.168.42.1"
 
@@ -73,4 +79,14 @@ def test_pdraw():
 
 
 if __name__ == "__main__":
+    drone = olympe.Drone("192.168.42.1")
+    drone.connection()
+    max_altitude=2.0
+    drone(MaxAltitude(max_altitude)).wait()
+    drone(TakeOff()
+          >> FlyingStateChanged(state="hovering", _timeout=5)).wait().success()
+
     main(sys.argv[1:])
+    time.sleep(5)
+    drone(Landing()).wait().success()
+

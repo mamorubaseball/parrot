@@ -200,6 +200,7 @@ class StreamingExample(threading.Thread):
 
 
 
+
         if self.drone.get_state(MaxAltitudeChanged)["current"] >3.0:
             print('高度が高すぎます')
             self.drone(Landing()).wait().success()
