@@ -196,17 +196,17 @@ class StreamingExample(threading.Thread):
 
         max_altitude = 2.0
         self.drone(MaxAltitude(max_altitude)).wait()
-        self.drone(TakeOff()).wait().success()
+
+
+
+
         if self.drone.get_state(MaxAltitudeChanged)["current"] >3.0:
             print('高度が高すぎます')
             self.drone(Landing()).wait().success()
 
         time.sleep(10)
         print("Landing...")
-        self.drone(
-            Landing()
-            >> FlyingStateChanged(state="landed", _timeout=5)
-        ).wait()
+        self.drone(Landing()).wait().success()
         print("Landed\n")
 
     def postprocessing(self):
@@ -253,7 +253,7 @@ class StreamingExample(threading.Thread):
             myFaceListC.append([cx, cy])
             myFaceListArea.append(area)
         # img⇛カラーに変換
-        img = cv2.cvtColor(img, cv2.CV_GRAY2BGR)
+        # img = cv2.cvtColor(img, cv2.CV_GRAY2BGR)
         if len(myFaceListArea) != 0:
             i = myFaceListArea.index(max(myFaceListArea))
             return img, [myFaceListC[i], myFaceListArea[i]]
@@ -266,7 +266,7 @@ if __name__ == "__main__":
     # Start the video stream
     streaming_example.start()
     # Perform some live video processing while the drone is flying
-    # streaming_example.fly()
+    streaming_example.fly()
     # Stop the video stream
     streaming_example.stop()
     # Recorded video stream postprocessing
