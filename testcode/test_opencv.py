@@ -20,7 +20,7 @@ fb=0
 DRONE_IP='192.168.42.1'
 
 def findFace(img):
-    faceCascade=cv2.CascadeClassifier('')
+    faceCascade=cv2.CascadeClassifier('haarcascade_frontalface_alt')
     imgGray=cv2.cvtColor(img,cv2.COLOR_BayerGBR2GRAY)
     faces=faceCascade.detectMultiScale(imgGray,1.2,8)
     myFaceListC=[]

@@ -129,6 +129,8 @@ class StreamingExample(threading.Thread):
         # Compute some stats and dump them in a csv file
         info = h264_frame.info()
         frame_ts = info["ntp_raw_timestamp"]
+        print('=======frame_size: {}======='.format(frame_size))
+        print('=======frame_ts: {}========='.format(frame_ts))
         if not bool(info["h264"]["is_sync"]):
             if len(self.h264_frame_stats) > 0:
                 while True:
@@ -173,17 +175,21 @@ class StreamingExample(threading.Thread):
         cv2.waitKey(1)  # please OpenCV for 1 ms...
 
     def tracking(self,info,pError):
-        x, y = info[0]
+        cx, cy = info[0]
         area = info[1]
-        w,h=self.w,self.h
+        print('=======面積{}========'.format(area))
+        W,H=self.w,self.h
         pid=self.pid
         fbRange = [6200, 6800]
         fb = 0
 
         ###この辺のコードの理解がまだ少し足りていない###
-        error = x - w // 2
+        error = cx - W // 2
         speed = pid[0] * error + pid[1] * (error - pError)
         speed = int(np.clip(speed, -100, 100))
+
+
+        # move baack and forward
         if area > fbRange[0] and area < fbRange[1]:
             fb = 0
         elif area > fbRange[1]:
@@ -191,12 +197,48 @@ class StreamingExample(threading.Thread):
         elif area < fbRange[0] and area != 0:
             fb = 0.05
 
-        if x == 0:
-            speed = 0
-            error = 0
-        self.drone(extended_move_by(0, fb, 0, speed, 1, 0.5, 0.5)
+        # move rotation
+        if error:
+            if speed>0:
+                rotation = math.pi//4
+            else:rotation = -math.pi//4
+
+        self.drone(extended_move_by(fb, 0, 0, rotation, 1, 0.5, 0.5)
               >> FlyingStateChanged(state="hovering", _timeout=5)).wait().success()
         return error
+
+    def Find_Detection(self,img):
+        # shift+右クリックでパスのコピーwinとlinux
+        # face_cascade_path='C:\Users\manak\AppData\Local\Packages\CanonicalGroupLimited.Ubuntu18.04onWindows_79rhkp1fndgsc\LocalState\rootfs\home\manaki\awesome\mamoru\parrot2\haarcascade_frontalface_alt.xml'
+        face_cascade_path = 'haarcascade_frontalface_alt.xml'
+        wall_lack_cascade_path = ''
+
+        # カスケードファイルが存在するか
+        if os.path.isfile(face_cascade_path) is False:
+            print('ファイルが存在しない')
+            return
+
+        faceCascade = cv2.CascadeClassifier(face_cascade_path)
+        # imgGray=cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
+        imgGray = img
+        faces = faceCascade.detectMultiScale(imgGray, 1.2, 8)
+        myFaceListC = []
+        myFaceListArea = []
+        for (x, y, w, h) in faces:
+            cv2.rectangle(img, (x, y), (x + w, y + h), (0, 0, 225), 2)
+            cx = x + w // 2
+            cy = y + h // 2
+            area = w * h
+            myFaceListC.append([cx, cy])
+            myFaceListArea.append(area)
+        # img⇛カラーに変換
+        #img = cv2.cvtColor(img, cv2.CV_GRAY2BGR)
+        if len(myFaceListArea) != 0:
+            i = myFaceListArea.index(max(myFaceListArea))
+            return img, [myFaceListC[i], myFaceListArea[i]]
+        else:
+            return img, [[0, 0], 0]
+
 
     def run(self):
         window_name = "Olympe Streaming Example"
@@ -261,37 +303,6 @@ class StreamingExample(threading.Thread):
         カスケードフィルターの変更で検知する物体を変更可能
         """
 
-    def Find_Detection(self,img):
-        # shift+右クリックでパスのコピーwinとlinux
-        # face_cascade_path='C:\Users\manak\AppData\Local\Packages\CanonicalGroupLimited.Ubuntu18.04onWindows_79rhkp1fndgsc\LocalState\rootfs\home\manaki\awesome\mamoru\parrot2\haarcascade_frontalface_alt.xml'
-        face_cascade_path = 'haarcascade_frontalface_alt.xml'
-        wall_lack_cascade_path = ''
-
-        # カスケードファイルが存在するか
-        if os.path.isfile(face_cascade_path) is False:
-            print('ファイルが存在しない')
-            return
-
-        faceCascade = cv2.CascadeClassifier(face_cascade_path)
-        # imgGray=cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
-        imgGray = img
-        faces = faceCascade.detectMultiScale(imgGray, 1.2, 8)
-        myFaceListC = []
-        myFaceListArea = []
-        for (x, y, w, h) in faces:
-            cv2.rectangle(img, (x, y), (x + w, y + h), (0, 0, 225), 2)
-            cx = x + w // 2
-            cy = y + h // 2
-            area = w * h
-            myFaceListC.append([cx, cy])
-            myFaceListArea.append(area)
-        # img⇛カラーに変換
-        #img = cv2.cvtColor(img, cv2.CV_GRAY2BGR)
-        if len(myFaceListArea) != 0:
-            i = myFaceListArea.index(max(myFaceListArea))
-            return img, [myFaceListC[i], myFaceListArea[i]]
-        else:
-            return img, [[0, 0], 0]
 
 
 if __name__ == "__main__":
