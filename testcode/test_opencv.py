@@ -8,6 +8,7 @@ import argparse
 from olympe import Pdraw, PDRAW_YUV_FORMAT_I420, PDRAW_YUV_FORMAT_NV12, PdrawState
 import time
 import sys
+import os
 
 """
 ドローンに映し出される仕組みを考える
@@ -21,8 +22,13 @@ DRONE_IP='192.168.42.1'
 
 def findFace(img):
     faceCascade=cv2.CascadeClassifier('haarcascade_frontalface_alt')
-    imgGray=cv2.cvtColor(img,cv2.COLOR_BayerGBR2GRAY)
-    faces=faceCascade.detectMultiScale(imgGray,1.2,8)
+
+    # カスケードファイルが存在するか
+    if os.path.isfile(faceCascade) is False:
+        print('ファイルが存在しない')
+        return
+    # imgGray=cv2.cvtColor(img,cv2.COLOR_BayerGBR2GRAY)
+    faces=faceCascade.detectMultiScale(img,1.2,8)
     myFaceListC=[]
     myFaceListArea=[]
     for (x,y,w,h) in faces:
@@ -32,50 +38,14 @@ def findFace(img):
         area=w*h
         myFaceListC.append([cx,cy])
         myFaceListArea.append(area)
+
+    # img = cv2.cvtColor(img, cv2.CV_GRAY2BGR)
     if len(myFaceListArea) !=0:
         i=myFaceListArea.index(max(myFaceListArea))
         return img,[myFaceListC[i],myFaceListArea[i]]
     else:return img,[[0,0],0]
 
-"""
-def trackFace(drone,info,w,pid,pError):
-    x,y=info[0]
-    area=info[1]
-    fb=0
 
-    error=x-w//2
-    speed=pid[0]*error+pid[1]*(error-pError)
-    speed=int(np.clip(speed,-100,100))
-    if area>fbRange[0] and area<fbRange[1]:
-        fb=0
-    elif area>fbRange[1]:
-        fb=-0.2
-    elif area<fbRange[0] and area !=0:
-        fb=0.2
-
-    if x==0:
-        speed=0
-        error=0
-
-    drone(extended_move_by(fb, 0, 0, 0, 1, 0.5, 0.5)
-          >> FlyingStateChanged(state="hovering", _timeout=5)).wait().success()
-    return error
-
-def tracking(img):
-    drone = olympe.Drone("192.168.42.1")
-    drone.connection()
-    pError=0
-    while True:
-        img=cv2.resize(img,(w,h))
-        img,info=findFace(img)
-        pError=trackFace(drone,info,w,pid,pError)
-        print('cneter',info[0],'area',info[1])
-        cv2.imshow('Output',img)
-        cv2.waitKey(1)
-        
-
-
-"""
 
 def yuv_frame_cb(yuv_frame):
     """
@@ -86,27 +56,35 @@ def yuv_frame_cb(yuv_frame):
     # such as the video resolution
     info = yuv_frame.info()
     height, width = info["yuv"]["height"], info["yuv"]["width"]
+
+    # yuv_frame.vmeta() returns a dictionary that contains additional
+    # metadata from the drone (GPS coordinates, battery percentage, ...)
+
+    # convert pdraw YUV flag to OpenCV YUV flag
     cv2_cvt_color_flag = {
         PDRAW_YUV_FORMAT_I420: cv2.COLOR_YUV2BGR_I420,
         PDRAW_YUV_FORMAT_NV12: cv2.COLOR_YUV2BGR_NV12,
     }[info["yuv"]["format"]]
+
+    # yuv_frame.as_ndarray() is a 2D numpy array with the proper "shape"
+    # i.e (3 * height / 2, width) because it's a YUV I420 or NV12 frame
+
+    # Use OpenCV to convert the yuv frame to RGB
     cv2frame = cv2.cvtColor(yuv_frame.as_ndarray(), cv2_cvt_color_flag)
-    #灰色に変換して、imgにする
     img = cv2.cvtColor(cv2frame, cv2.COLOR_RGB2GRAY)
     img,info=findFace(img)
+
     # Use OpenCV to show this frame
-    cv2.imshow("Olympe Pdraw Example", img)
+    cv2.imshow("Olympe Pdraw Example", cv2frame)
     cv2.waitKey(1)  # please OpenCV for 1 ms...
 
 
 def main(argv):
-    drone=olympe.Drone(DRONE_IP)
-    drone.connect()
     parser = argparse.ArgumentParser(description="Olympe Pdraw Example")
     parser.add_argument(
         "-u",
         "--url",
-        default="rtsp://10.202.0.1/live",
+        default="rtsp://192.168.42.1/live",
         help=(
             "Media resource (rtsp:// or file://) URL.\n"
             "See olympe.Pdraw.play documentation"
@@ -115,13 +93,12 @@ def main(argv):
     parser.add_argument("-m", "--media-name", default="DefaultVideo")
     args = parser.parse_args(argv)
     pdraw = Pdraw()
-
     pdraw.set_callbacks(raw_cb=yuv_frame_cb)
     pdraw.play(url=args.url, media_name=args.media_name)
     assert pdraw.wait(PdrawState.Playing, timeout=5)
     if args.url.endswith("/live"):
         # Let's see the live video streaming for 10 seconds
-        time.sleep(10)
+        time.sleep(100)
         pdraw.close()
         timeout = 5
     else:
@@ -131,6 +108,7 @@ def main(argv):
         timeout = 90
     assert pdraw.wait(PdrawState.Closed, timeout=timeout)
     pdraw.dispose()
+
 if __name__ == '__main__':
     main(sys.argv[1:])
 
