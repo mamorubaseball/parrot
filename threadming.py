@@ -14,6 +14,7 @@ import threading
 import time
 import cv2
 import numpy as np
+import numpy
 
 import olympe
 from olympe.messages.ardrone3.Piloting import TakeOff, Landing
@@ -143,6 +144,7 @@ class StreamingExample:
         # the VideoFrame.info() dictionary contains some useful information
         # such as the video resolution
         info = yuv_frame.info()
+        windowSize = (640,480)
 
         height, width = (  # noqa
             info["raw"]["frame"]["info"]["height"],
@@ -161,6 +163,24 @@ class StreamingExample:
         cv2frame = cv2.cvtColor(yuv_frame.as_ndarray(), cv2_cvt_color_flag)
         img = cv2.cvtColor(cv2frame, cv2.COLOR_RGB2GRAY)
         img, info = self.Find_Detection(img)
+        
+        sdl2.ext.init()
+        window = sdl2.ext.Window("test", size=windowSize)
+        window.show()
+        windowSurf = sdl2.SDL_GetWindowSurface(window.window)
+        windowArray = sdl2.ext.pixels3d(windowSurf.contents)
+
+        while True:
+            #keep reading to have a live feed from the cam
+            junk,image = vc.read()
+            image = numpy.insert(image,3,255,axis=2) #add alpha
+            image = numpy.rot90(image) #rotate dims
+            numpy.copyto(windowArray, image)
+            window.refresh()
+        
+        
+        
+        
         self.pError = self.tracking(info, pError=self.pError)
         cv2.imshow(window_name, img)
         cv2.waitKey(1)  # please OpenCV for 1 ms...
