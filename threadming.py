@@ -177,10 +177,24 @@ class StreamingExample:
             image = numpy.rot90(image) #rotate dims
             numpy.copyto(windowArray, image)
             window.refresh()
-        
-        
-        
-        
+   
+
+        def process_frame(img):
+            # --- initialize
+            sdl2.ext.init()
+            window = sdl2.ext.Window("sdl",size=('width','height'))
+            window.show()
+            events = sdl2.ext.get_events()
+            for event in events:
+                if event.type == sdl2.SDL_QUIT:
+                    exit(0)
+            # --- initialize
+            windowArray = sdl2.ext.pixels3d(window.get_surface()) 
+
+            # --- convert cv2 frame to sdl windowArray
+            windowArray[:,:,0:3] = img.swapaxes(0,1)
+         
+        process_frame(img)
         self.pError = self.tracking(info, pError=self.pError)
         cv2.imshow(window_name, img)
         cv2.waitKey(1)  # please OpenCV for 1 ms...
