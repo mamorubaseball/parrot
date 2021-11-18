@@ -85,6 +85,15 @@ class OlympeStreaming(threading.Thread):
 
         # Use OpenCV to convert the yuv frame to RGB
         cv2frame = cv2.cvtColor(yuv_frame.as_ndarray(), cv2_cvt_color_flag)
+        face_cascade_path = 'haarcascade_frontalface_alt.xml'
+        faceCascade = cv2.CascadeClassifier(face_cascade_path)
+        cv2frame =  cv2.cvtColor(cv2frame,cv2.COLOR_BGR2GRAY)
+        faces = faceCascade.detectMultiScale(cv2frame, 1.2, 8)
+        for (x, y, w, h) in faces:
+            cv2.rectangle(cv2frame, (x, y), (x + w, y + h), (0, 0, 225), 2)
+
+
+
         cv2.imshow("cv2_show", cv2frame)
         cv2.waitKey(1)
 
