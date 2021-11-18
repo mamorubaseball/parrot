@@ -127,7 +127,7 @@ class StreamingExample:
         }[h264_frame.format()]
         cv2frame = cv2.cvtColor(h264_frame.as_ndarray(), cv2_cvt_color_flag)
         img = cv2.cvtColor(cv2frame, cv2.COLOR_RGB2GRAY)
-        cv2.imshow('find detection', img)
+        cv2.imshow('show cv2', img)
         cv2.waitKey(1)  # please OpenCV for 1 ms...
 
         # For this example we will just compute some basic video stream stats
@@ -297,7 +297,7 @@ def test_streaming():
     # Start the video stream
     streaming_example.start()
     # Perform some live video processing while the drone is flying
-    streaming_example.fly()
+    #streaming_example.fly()
     # Stop the video stream
     streaming_example.stop()
     # Recorded video stream postprocessing
