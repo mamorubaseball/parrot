@@ -1,3 +1,6 @@
+import math
+import sys
+
 import olympe
 from olympe.messages.ardrone3.Piloting import TakeOff, moveBy, Landing, moveTo, NavigateHome
 import threading
@@ -5,6 +8,11 @@ import time
 import queue
 import cv2
 import logging
+
+from olympe.messages.move import extended_move_by,extended_move_to
+from olympe.messages.ardrone3.PilotingState import FlyingStateChanged
+
+
 
 
 class OlympeStreaming(threading.Thread):
@@ -14,6 +22,8 @@ class OlympeStreaming(threading.Thread):
         self.flush_queue_lock = threading.Lock()
         self.frame_num = 0 
         self.renderer = None
+        self.w=360
+        self.h=240
         super().__init__()
         super().start()
 
@@ -88,9 +98,22 @@ class OlympeStreaming(threading.Thread):
         face_cascade_path = 'haarcascade_frontalface_alt.xml'
         faceCascade = cv2.CascadeClassifier(face_cascade_path)
         cv2frame =  cv2.cvtColor(cv2frame,cv2.COLOR_BGR2GRAY)
-        faces = faceCascade.detectMultiScale(cv2frame, 1.2, 8)
+        faces = faceCascade.detectMultiScale(cv2frame, scaleFactor = 1.2, minNeighbors = 6)
+        sys.getsizeof(faces)
         for (x, y, w, h) in faces:
             cv2.rectangle(cv2frame, (x, y), (x + w, y + h), (0, 0, 225), 2)
+            cx = x + w // 2
+            cy = y + h // 2
+            area = w * h
+            error=self.w//2 - cx
+
+            if error>0:
+                rotation = - math.pi // 4
+            else:rotation = math.pi // 4
+
+            self.drone(extended_move_by(o, 0, 0, rotation, 1, 0.5, 0.5)
+                       >> FlyingStateChanged(state="hovering", _timeout=5)).wait().success()
+
 
 
 
