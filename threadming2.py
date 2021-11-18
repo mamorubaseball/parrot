@@ -5,6 +5,20 @@ import time
 import queue
 import cv2
 import logging
+import csv
+import math
+import os
+import queue
+import shlex
+import subprocess
+import tempfile
+import threading
+import time
+import cv2
+import numpy as np
+import numpy
+from olympe.messages.move import extended_move_by,extended_move_to
+
 
 '''
 min_threadingを使って、飛行しながら画像認識
