@@ -17,7 +17,10 @@ import time
 import cv2
 import numpy as np
 import numpy
+from olympe.messages.ardrone3.PilotingSettings import MaxTilt, MaxAltitude
 from olympe.messages.move import extended_move_by,extended_move_to
+from olympe.messages.ardrone3.PilotingState import FlyingStateChanged
+
 
 
 '''
@@ -31,6 +34,13 @@ class OlympeStreaming(threading.Thread):
         self.flush_queue_lock = threading.Lock()
         self.frame_num = 0
         self.renderer = None
+        self.max_altitude = 2.0
+        self.drone(MaxAltitude(self.max_altitude)).wait()
+        self.w = 360
+        self.h = 240
+        self.pid = [0.4, 0.4, 0]
+        self.pError = 0
+
         super().__init__()
         super().start()
 
@@ -103,7 +113,7 @@ class OlympeStreaming(threading.Thread):
         cv2frame = cv2.cvtColor(yuv_frame.as_ndarray(), cv2_cvt_color_flag)
         img = cv2.cvtColor(cv2frame, cv2.COLOR_RGB2GRAY)
         img, info = self.Find_Detection(img)
-        cv2.imshow("cv2_show", cv2frame)
+        cv2.imshow("cv2_show", img)
         cv2.waitKey(1)
 
     def tracking(self, info, pError):
@@ -154,8 +164,8 @@ class OlympeStreaming(threading.Thread):
             return
 
         faceCascade = cv2.CascadeClassifier(face_cascade_path)
-        # imgGray=cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
-        imgGray = img
+        imgGray=cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
+        # imgGray = img
         faces = faceCascade.detectMultiScale(imgGray, 1.2, 8)
         myFaceListC = []
         myFaceListArea = []
