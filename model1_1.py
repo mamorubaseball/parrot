@@ -16,7 +16,7 @@ from phote import *
 DRONE_IP = "192.168.42.1"
 def main():
     drone = olympe.Drone(DRONE_IP)
-    drone.connection()
+    drone.connect()
     drone(TakeOff()).wait().success()
     first_rotation=2*(80/360)/math.pi
     right_rotation=2*(100/360)/math.pi
