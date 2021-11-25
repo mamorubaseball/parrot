@@ -112,7 +112,7 @@ class OlympeStreaming(threading.Thread):
         faceCascade = cv2.CascadeClassifier(face_cascade_path)
         cv2frame = cv2.cvtColor(cv2frame, cv2.COLOR_BGR2GRAY)
         # ここの処理がものすごくCPUを消費しているのでは？？動画が遅い理由はなんだ？
-        faces = faceCascade.detectMultiScale(cv2frame, scaleFactor=1.2, minNeighbors=6)
+        faces = faceCascade.detectMultiScale(cv2frame, scaleFactor=1.2, minNeighbors=2)
 
         edges = cv2.Canny(cv2frame, 50, 150, apertureSize=3)
         lines = cv2.HoughLinesP(edges,
@@ -187,7 +187,7 @@ if __name__ == "__main__":
     streamer.set_gimbal()
     time.sleep(4)
 
-    drone(TakeOff()).wait().success()
+#     drone(TakeOff()).wait().success()
     streamer.start()
 
     ### Flight commands here ###
