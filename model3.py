@@ -12,6 +12,7 @@ import logging
 from olympe.messages.move import extended_move_by, extended_move_to
 from olympe.messages.ardrone3.PilotingState import FlyingStateChanged
 from olympe.messages import gimbal
+import numpy as np
 
 
 
@@ -107,41 +108,48 @@ class OlympeStreaming(threading.Thread):
 
         # Use OpenCV to convert the yuv frame to RGB
         cv2frame = cv2.cvtColor(yuv_frame.as_ndarray(), cv2_cvt_color_flag)
-        face_cascade_path = 'himo2.xml'
+        face_cascade_path = 'cascade.xml'
         faceCascade = cv2.CascadeClassifier(face_cascade_path)
         cv2frame = cv2.cvtColor(cv2frame, cv2.COLOR_BGR2GRAY)
         # ここの処理がものすごくCPUを消費しているのでは？？動画が遅い理由はなんだ？
         faces = faceCascade.detectMultiScale(cv2frame, scaleFactor=1.2, minNeighbors=6)
 
+        edges = cv2.Canny(cv2frame, 50, 150, apertureSize=3)
+        lines = cv2.HoughLinesP(edges,
+                                rho=1,
+                                theta=np.pi / 360,
+                                threshold=100,
+                                minLineLength=200,
+                                maxLineGap=6)
         myFaceListC = []
         myFaceListArea = []
-        sys.getsizeof(faces)
+        
         # cx,cy は顔の中心
-        for (x, y, w, h) in faces:
+        for (x, y, w, h) in lines:
             cv2.rectangle(cv2frame, (x, y), (x + w, y + h), (0, 0, 225), 2)
-#             cx = x + w//2　
-#             cy = y + h // 2
-#             area = w * h
-#             myFaceListC.append([cx, cy])
-#             myFaceListArea.append(area)
-        # img⇛カラーに変換
-#         img = cv2.cvtColor(cv2frame, cv2.CV_GRAY2BGR)
-#         if len(myFaceListArea) != 0:
-#             i = myFaceListArea.index(max(myFaceListArea))
-#             info = [myFaceListC[i], myFaceListArea[i]]
-#         else:
-#             info = [[0, 0], 0]
-#         cx = info[0][0]
-#         cy = info[0][1]
-#         error = self.w // 2 - cx
+            cx=x+w//2
+            cy=y+h//2
+            
+            myFaceListC.append([cx, cy])
+            
+        # # img⇛カラーに変換
+        # img = cv2.cvtColor(cv2frame, cv2.CV_GRAY2BGR)
+        # if len(myFaceListArea) != 0:
+        #     i = myFaceListArea.index(max(myFaceListArea))
+        #     info = [myFaceListC[i], myFaceListArea[i]]
+        # else:
+        #     info = [[0, 0], 0]
+        # cx = info[0][0]
+        # cy = info[0][1]
+        # error = self.w // 2 - cx
+        # 
+        # if error > 0:
+        #     rotation = - math.pi // 4
+        # else:
+        #     rotation = math.pi // 4
 
-#         if error > 0:
-#             rotation = - math.pi // 4
-#         else:
-#             rotation = math.pi // 4
-
-#         self.drone(extended_move_by(0, 0, 0, rotation, 1, 0.5, 0.5)
-#                    >> FlyingStateChanged(state="hovering", _timeout=5)).wait().success()
+        #self.drone(extended_move_by(0, 0, 0, rotation, 1, 0.5, 0.5)
+        #          >> FlyingStateChanged(state="hovering", _timeout=5)).wait().success()
 
         cv2.imshow("cv2_show", cv2frame)
         cv2.waitKey(1)
