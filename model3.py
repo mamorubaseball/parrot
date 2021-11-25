@@ -107,7 +107,7 @@ class OlympeStreaming(threading.Thread):
 
         # Use OpenCV to convert the yuv frame to RGB
         cv2frame = cv2.cvtColor(yuv_frame.as_ndarray(), cv2_cvt_color_flag)
-        face_cascade_path = 'cascade.xml'
+        face_cascade_path = 'himo2.xml'
         faceCascade = cv2.CascadeClassifier(face_cascade_path)
         cv2frame = cv2.cvtColor(cv2frame, cv2.COLOR_BGR2GRAY)
         # ここの処理がものすごくCPUを消費しているのでは？？動画が遅い理由はなんだ？
