@@ -119,29 +119,29 @@ class OlympeStreaming(threading.Thread):
         # cx,cy は顔の中心
         for (x, y, w, h) in faces:
             cv2.rectangle(cv2frame, (x, y), (x + w, y + h), (0, 0, 225), 2)
-            cx = x + w//2　
-            cy = y + h // 2
-            area = w * h
-            myFaceListC.append([cx, cy])
-            myFaceListArea.append(area)
+#             cx = x + w//2　
+#             cy = y + h // 2
+#             area = w * h
+#             myFaceListC.append([cx, cy])
+#             myFaceListArea.append(area)
         # img⇛カラーに変換
-        img = cv2.cvtColor(cv2frame, cv2.CV_GRAY2BGR)
-        if len(myFaceListArea) != 0:
-            i = myFaceListArea.index(max(myFaceListArea))
-            info = [myFaceListC[i], myFaceListArea[i]]
-        else:
-            info = [[0, 0], 0]
-        cx = info[0][0]
-        cy = info[0][1]
-        error = self.w // 2 - cx
+#         img = cv2.cvtColor(cv2frame, cv2.CV_GRAY2BGR)
+#         if len(myFaceListArea) != 0:
+#             i = myFaceListArea.index(max(myFaceListArea))
+#             info = [myFaceListC[i], myFaceListArea[i]]
+#         else:
+#             info = [[0, 0], 0]
+#         cx = info[0][0]
+#         cy = info[0][1]
+#         error = self.w // 2 - cx
 
-        if error > 0:
-            rotation = - math.pi // 4
-        else:
-            rotation = math.pi // 4
+#         if error > 0:
+#             rotation = - math.pi // 4
+#         else:
+#             rotation = math.pi // 4
 
-        self.drone(extended_move_by(0, 0, 0, rotation, 1, 0.5, 0.5)
-                   >> FlyingStateChanged(state="hovering", _timeout=5)).wait().success()
+#         self.drone(extended_move_by(0, 0, 0, rotation, 1, 0.5, 0.5)
+#                    >> FlyingStateChanged(state="hovering", _timeout=5)).wait().success()
 
         cv2.imshow("cv2_show", cv2frame)
         cv2.waitKey(1)
