@@ -125,12 +125,16 @@ class OlympeStreaming(threading.Thread):
         myFaceListArea = []
         
         # cx,cy は顔の中心
-        for (x, y, w, h) in lines:
-            cv2.rectangle(cv2frame, (x, y), (x + w, y + h), (0, 0, 225), 2)
-            cx=x+w//2
-            cy=y+h//2
-            
-            myFaceListC.append([cx, cy])
+        if lines is None:
+            pass
+        else:
+            print('kenshutu')
+            print(lines[0][0])
+            x,y,w,h=lines[0][0][0],lines[0][0][1],lines[0][0][2],lines[0][0][3]
+            mylineList.append([x,y,w,h])
+            cv2.line(cv2frame,(x,y),(w,h),(0,0,225),2)
+            left()
+            right()
             
         # # img⇛カラーに変換
         # img = cv2.cvtColor(cv2frame, cv2.CV_GRAY2BGR)
