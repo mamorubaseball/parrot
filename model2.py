@@ -18,10 +18,30 @@ import math
 from math import *
 from olympe.messages.move import extended_move_by,extended_move_to
 from phote import *
+import csv
 
 CSV='CSV/ki2_2.csv'
-
 DRONE_IP = "192.168.42.1"
+
+def test_gps():
+    drone = olympe.Drone(DRONE_IP)
+    drone.connect()
+    gps_list=[]
+
+    assert drone(
+        TakeOff()
+        >> FlyingStateChanged(state="hovering", _timeout=5)
+    ).wait().success()
+
+    with open('CSV/gps_seido.csv.csv', 'w') as f:
+        writer = csv.writer(f)
+        for i in range(30):
+            gps=get_now_gps(drone)
+            writer.writerow([gps['latitude'], gps['longitude'], gps['altitude']])
+            time.sleep(1)
+
+    drone(Landing()).wait()
+
 
 def get_now_gps(drone):
     # Wait for GPS fix
