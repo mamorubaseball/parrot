@@ -13,7 +13,7 @@ from olympe.messages.move import extended_move_by, extended_move_to
 from olympe.messages.ardrone3.PilotingState import FlyingStateChanged
 from olympe.messages import gimbal
 import numpy as np
-
+import os
 
 
 
@@ -85,6 +85,15 @@ class OlympeStreaming(threading.Thread):
     def h264_frame_cb(self, h264_frame):
         pass
 
+    def left(self):
+        os.system('python3 left.py')
+
+    def right(self):
+        pass
+    def land(self):
+        os.system('python3 landing.py')
+
+
     def display_frame(self, yuv_frame, x=None):
         # the VideoFrame.info() dictionary contains some useful information
         # such as the video resolution
@@ -123,6 +132,7 @@ class OlympeStreaming(threading.Thread):
                                 maxLineGap=6)
         myFaceListC = []
         myFaceListArea = []
+        mylineList=[]
         
         # cx,cy は顔の中心
         if lines is None:
@@ -133,8 +143,8 @@ class OlympeStreaming(threading.Thread):
             x,y,w,h=lines[0][0][0],lines[0][0][1],lines[0][0][2],lines[0][0][3]
             mylineList.append([x,y,w,h])
             cv2.line(cv2frame,(x,y),(w,h),(0,0,225),2)
-            left()
-            right()
+            self.left()
+            self.land()
             
         # # img⇛カラーに変換
         # img = cv2.cvtColor(cv2frame, cv2.CV_GRAY2BGR)
@@ -191,8 +201,8 @@ if __name__ == "__main__":
     streamer.set_gimbal()
     time.sleep(4)
 
-#     drone(TakeOff()).wait().success()
     streamer.start()
+    drone(TakeOff()).wait().success()
 
     ### Flight commands here ###
     time.sleep(300)

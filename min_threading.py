@@ -107,7 +107,7 @@ class OlympeStreaming(threading.Thread):
         # cx,cy は顔の中心
         for (x, y, w, h) in faces:
             cv2.rectangle(cv2frame, (x, y), (x + w, y + h), (0, 0, 225), 2)
-            cx = x + w // 2　
+            cx = x + w // 2
             cy = y + h // 2
             area = w * h
             myFaceListC.append([cx, cy])
@@ -168,7 +168,7 @@ if __name__ == "__main__":
     streamer.start()
 
     ### Flight commands here ###
-    time.sleep(300)
+
     
     streamer.stop()
      
