@@ -47,7 +47,7 @@ class StreamingExample:
         self.frame_queue = queue.Queue()
         self.flush_queue_lock = threading.Lock()
         self.renderer = None
-        self.max_altitude = 2.0
+        self.max_altitude = 0.5
         self.drone(MaxAltitude(self.max_altitude)).wait()
         self.w=360
         self.h=240

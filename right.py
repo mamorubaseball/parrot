@@ -10,7 +10,7 @@ import argparse
 DRONE_IP = os.environ.get("DRONE_IP", "192.168.42.1")
 
 parser = argparse.ArgumentParser(description='このプログラムの説明（なくてもよい）')
-parser.add_argument('-x',type=int)
+parser.add_argument('-x','--distance')
 args = parser.parse_args()
 def left(x):
     drone = olympe.Drone(DRONE_IP)
@@ -19,4 +19,4 @@ def left(x):
               >> FlyingStateChanged(state="hovering", _timeout=3)).wait().success()
 
 if __name__ == '__main__':
-    left(args)
+    left(args.distance)

@@ -14,6 +14,8 @@ from olympe.messages.ardrone3.PilotingState import FlyingStateChanged
 from olympe.messages import gimbal
 import numpy as np
 import os
+from olympe.messages.ardrone3.PilotingSettings import MaxTilt, MaxAltitude
+
 
 
 
@@ -24,10 +26,13 @@ class OlympeStreaming(threading.Thread):
         self.flush_queue_lock = threading.Lock()
         self.frame_num = 0
         self.renderer = None
-        self.w = 360
-        self.h = 240
-        self.CX=180
-        self.CY=120
+        self.w = 1280
+        self.h = 720
+        self.CX=self.w//2
+        self.CY=self.h//2
+        self.max_altitude = 0.5
+        self.drone(MaxAltitude(self.max_altitude)).wait()
+
 
         super().__init__()
         super().start()
@@ -144,14 +149,14 @@ class OlympeStreaming(threading.Thread):
         else:
             print('kenshutu')
             print(lines[0][0])
-            x,y,w,h=lines[0][0][0],lines[0][0][1],lines[0][0][2],lines[0][0][3]
-            mylineList.append([x,y,w,h])
-            cv2.line(cv2frame,(x,y),(w,h),(0,0,225),2)
-            cx=x+w//2
-            cy=y+h//2
+            x1,y1,x2,y2=lines[0][0][0],lines[0][0][1],lines[0][0][2],lines[0][0][3]
+            mylineList.append([x1,y1,x2,y2])
+            cv2.line(cv2frame,(x1,y1),(x2,y2),(0,0,225),2)
+            cx=(x1+x2)//2
+            cy=(y1+y2)//2
             if cx>self.CX:
-                self.right(0.5)
-            else:self.right(-0.5)
+                self.right(0.4)
+            else:self.right(-0.4)
 
             
         # # img⇛カラーに変換
