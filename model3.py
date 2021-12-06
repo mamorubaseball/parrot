@@ -26,6 +26,9 @@ class OlympeStreaming(threading.Thread):
         self.renderer = None
         self.w = 360
         self.h = 240
+        self.CX=180
+        self.CY=120
+
         super().__init__()
         super().start()
 
@@ -88,8 +91,9 @@ class OlympeStreaming(threading.Thread):
     def left(self):
         os.system('python3 left.py')
 
-    def right(self):
-        pass
+    def right(self,x):
+        os.system('python3 right.py -x {}'.format(x))
+
     def land(self):
         os.system('python3 landing.py')
 
@@ -143,8 +147,12 @@ class OlympeStreaming(threading.Thread):
             x,y,w,h=lines[0][0][0],lines[0][0][1],lines[0][0][2],lines[0][0][3]
             mylineList.append([x,y,w,h])
             cv2.line(cv2frame,(x,y),(w,h),(0,0,225),2)
-            self.left()
-            self.land()
+            cx=x+w//2
+            cy=y+h//2
+            if cx>self.CX:
+                self.right(0.5)
+            else:self.right(-0.5)
+
             
         # # img⇛カラーに変換
         # img = cv2.cvtColor(cv2frame, cv2.CV_GRAY2BGR)
