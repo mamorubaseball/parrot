@@ -156,7 +156,11 @@ class OlympeStreaming(threading.Thread):
             cy=(y1+y2)//2
             if cx>self.CX:
                 self.right(0.4)
-            else:self.right(-0.4)
+                time.sleep(3)
+            else:
+                self.right(-0.4)
+                time.sleep(3)
+
 
             
         # # img⇛カラーに変換
