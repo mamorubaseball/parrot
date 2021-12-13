@@ -10,7 +10,7 @@ import argparse
 DRONE_IP = os.environ.get("DRONE_IP", "192.168.42.1")
 
 parser = argparse.ArgumentParser(description='右に移動させる場合は正の値、左に移動させる場合は負の値を代入')
-parser.add_argument('-x','--distance')
+parser.add_argument('-x','--distance',type=float)
 args = parser.parse_args()
 def slide(x):
     drone = olympe.Drone(DRONE_IP)

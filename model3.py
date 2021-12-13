@@ -181,12 +181,24 @@ class OlympeStreaming(threading.Thread):
                 self.rotation(self.sita)
 
             #########並行移動##########
-            if cx>self.CX:
-                self.move_slide(0.4)
-                time.sleep(3)
+            distance=cx-self.CX
+
+            if distance>20 and distance<-20:
+                pass
             else:
-                self.move_slide(-0.4)
-                time.sleep(3)
+
+                if distance>60:
+                    self.move_slide(0.3)
+                    time.sleep(3)
+                elif distance>40:
+                    self.move_slide(0.2)
+                    time.sleep(3)
+                elif distance>-40:
+                    self.move_slide(-0.2)
+                    time.sleep(3)
+                else:
+                    self.move_slide(-0.3)
+                    time.sleep(3)
 
 
             

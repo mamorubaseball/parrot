@@ -23,6 +23,7 @@ def main():
     left_rotation=2*(80/360)/math.pi
 
 
+
     drone(moveBy(0, 0, 0, first_rotation)
           >> FlyingStateChanged(state="hovering", _timeout=3)).wait().success()
 
@@ -55,6 +56,7 @@ def main():
         >> FlyingStateChanged(state="hovering", _timeout=3)).wait().success()
 
     for i in range(5):
+
         left(drone)
         right(drone)
 
