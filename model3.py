@@ -32,6 +32,8 @@ class OlympeStreaming(threading.Thread):
         self.CY=self.h//2
         self.max_altitude = 0.5
         self.drone(MaxAltitude(self.max_altitude)).wait()
+        self.sita=0
+        # self.drone(moveBy(0,0,0.5,0))
 
 
         super().__init__()
@@ -93,11 +95,25 @@ class OlympeStreaming(threading.Thread):
     def h264_frame_cb(self, h264_frame):
         pass
 
-    def left(self):
-        os.system('python3 left.py')
+    def left(self,x):
+        os.system('python3 right.py -x {}'.format(x))
+
 
     def right(self,x):
         os.system('python3 right.py -x {}'.format(x))
+
+    def move_slide(self,x):
+        os.system('python3 move_slide.py -x {}'.format(x))
+
+    def rotation(self,sita):
+        os.system('python3 rotation.py -r {}'.format(sita))
+
+    def make_sita(self,x1,y1,x2,y2):
+        sita = math.acos(abs(y2-y1)/((x1-x2)**2+(y1-y2)**2)**(1/2))
+        return sita
+
+
+
 
     def land(self):
         os.system('python3 landing.py')
@@ -154,11 +170,22 @@ class OlympeStreaming(threading.Thread):
             cv2.line(cv2frame,(x1,y1),(x2,y2),(0,0,225),2)
             cx=(x1+x2)//2
             cy=(y1+y2)//2
+
+            #########回転###########
+            if y1<=y2:
+                self.sita=self.make_sita(x1,y1,x2,y2)
+            else:
+                self.sita=self.make_sita(x1,y1,x2,y2)
+            #30度以上傾くと回転する
+            if self.sita>=math.pi/6:
+                self.rotation(self.sita)
+
+            #########並行移動##########
             if cx>self.CX:
-                self.right(0.4)
+                self.move_slide(0.4)
                 time.sleep(3)
             else:
-                self.right(-0.4)
+                self.move_slide(-0.4)
                 time.sleep(3)
 
 
@@ -220,6 +247,7 @@ if __name__ == "__main__":
 
     streamer.start()
     drone(TakeOff()).wait().success()
+    drone(moveBy(0,0,-1.0,0)).wait()
 
     ### Flight commands here ###
     time.sleep(300)
