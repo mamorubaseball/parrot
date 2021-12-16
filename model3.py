@@ -33,6 +33,7 @@ class OlympeStreaming(threading.Thread):
         self.max_altitude = 0.5
         self.drone(MaxAltitude(self.max_altitude)).wait()
         self.sita=0
+        self.flag=False
         # self.drone(moveBy(0,0,0.5,0))
 
 
@@ -108,6 +109,9 @@ class OlympeStreaming(threading.Thread):
     def rotation(self,sita):
         os.system('python3 rotation.py -r {}'.format(sita))
 
+    def go(self):
+        os.system('python3 go.py')
+
     def make_sita(self,x1,y1,x2,y2):
         sita = math.acos(abs(y2-y1)/((x1-x2)**2+(y1-y2)**2)**(1/2))
         return sita
@@ -161,6 +165,7 @@ class OlympeStreaming(threading.Thread):
         
         # cx,cy は顔の中心
         if lines is None:
+            self.flag=False
             pass
         else:
             print('kenshutu')
@@ -176,14 +181,14 @@ class OlympeStreaming(threading.Thread):
                 self.sita=self.make_sita(x1,y1,x2,y2)
             else:
                 self.sita=self.make_sita(x1,y1,x2,y2)
-            #30度以上傾くと回転する
-            if self.sita>=math.pi/6:
+            #15度以上傾くと回転する
+            if self.sita>=math.pi/12:
                 self.rotation(self.sita)
 
             #########並行移動##########
             distance=cx-self.CX
 
-            if distance>20 and distance<-20:
+            if distance>30 and distance<-30:
                 pass
             else:
 
@@ -199,6 +204,12 @@ class OlympeStreaming(threading.Thread):
                 else:
                     self.move_slide(-0.3)
                     time.sleep(3)
+
+            if self.sita>=math.pi/12 and (distance>30 and distance<-30):
+                self.go()
+
+
+
 
 
             
