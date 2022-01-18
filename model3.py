@@ -180,7 +180,7 @@ class OlympeStreaming(threading.Thread):
             if y1<=y2:
                 self.sita=self.make_sita(x1,y1,x2,y2)
             else:
-                self.sita=self.make_sita(x1,y1,x2,y2)
+                self.sita=self.make_sita(x2,y2,x1,y1)
             #15度以上傾くと回転する
             if self.sita>=math.pi/12:
                 self.rotation(self.sita)
@@ -207,12 +207,7 @@ class OlympeStreaming(threading.Thread):
 
             if self.sita>=math.pi/12 and (distance>30 and distance<-30):
                 self.go()
-
-
-
-
-
-            
+                
         # # img⇛カラーに変換
         # img = cv2.cvtColor(cv2frame, cv2.CV_GRAY2BGR)
         # if len(myFaceListArea) != 0:
