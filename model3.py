@@ -144,14 +144,30 @@ class OlympeStreaming(threading.Thread):
         # yuv_frame.as_ndarray() is a 2D numpy array with the proper "shape"
         # i.e (3 * height / 2, width) because it's a YUV I420 or NV12 frame
 
+        # face_cascade_path = 'cascade.xml'
+        # faceCascade = cv2.CascadeClassifier(face_cascade_path)
+        # ここの処理がものすごくCPUを消費しているのでは？？動画が遅い理由はなんだ？
+        # faces = faceCascade.detectMultiScale(cv2frame, scaleFactor=1.2, minNeighbors=2)
+
+
+
         # Use OpenCV to convert the yuv frame to RGB
         cv2frame = cv2.cvtColor(yuv_frame.as_ndarray(), cv2_cvt_color_flag)
-        face_cascade_path = 'cascade.xml'
-        faceCascade = cv2.CascadeClassifier(face_cascade_path)
-        cv2frame = cv2.cvtColor(cv2frame, cv2.COLOR_BGR2GRAY)
-        # ここの処理がものすごくCPUを消費しているのでは？？動画が遅い理由はなんだ？
-        faces = faceCascade.detectMultiScale(cv2frame, scaleFactor=1.2, minNeighbors=2)
 
+        ###########緑色に変換する###################
+        #BGR色空間からHSV空間への変換
+        hsv = cv2.cvtColor(cv2frame,cv2.COLOR_BGR2HSV)
+
+        #色検出しきい値(緑の色相範囲30~90)
+        lower = np.array([30, 64, 0])
+        upper = np.array([90, 255, 255])
+
+        fram_msk=cv2.inRange(hsv,lower,upper)
+        # 論理演算で色検出
+        cv2frame = cv2.bitwise_and(cv2frame, cv2frame, mask=fram_msk)
+
+        ###########################################
+        # cv2frame = cv2.cvtColor(cv2frame, cv2.COLOR_BGR2GRAY)
         edges = cv2.Canny(cv2frame, 50, 150, apertureSize=3)
         lines = cv2.HoughLinesP(edges,
                                 rho=1,
@@ -265,8 +281,6 @@ if __name__ == "__main__":
 
     streamer.start()
     drone(TakeOff()).wait().success()
-    drone(moveBy(0,0,-1.0,0)).wait()
-
     ### Flight commands here ###
     time.sleep(300)
 
