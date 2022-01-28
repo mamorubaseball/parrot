@@ -9,10 +9,12 @@ import queue
 import cv2
 import logging
 
+
 from olympe.messages.move import extended_move_by, extended_move_to
 from olympe.messages.ardrone3.PilotingState import FlyingStateChanged
 from olympe.messages import gimbal
 import numpy as np
+import pandas as pd
 import os
 from olympe.messages.ardrone3.PilotingSettings import MaxTilt, MaxAltitude
 
@@ -28,12 +30,14 @@ class OlympeStreaming(threading.Thread):
         self.renderer = None
         self.w = 1280
         self.h = 720
+        self.go_ahead=0
         self.CX=self.w//2
         self.CY=self.h//2
         self.max_altitude = 0.5
         self.drone(MaxAltitude(self.max_altitude)).wait()
         self.sita=0
         self.flag=False
+        self.log_df = pd.DataFrame(columns=['sita','slide','go'])
         # self.drone(moveBy(0,0,0.5,0))
 
 
@@ -109,8 +113,8 @@ class OlympeStreaming(threading.Thread):
     def rotation(self,sita):
         os.system('python3 rotation.py -r {}'.format(sita))
 
-    def go(self):
-        os.system('python3 go.py')
+    def go(self,distance):
+        os.system('python3 go.py -m {}'.format(distance))
 
     def make_sita(self,x1,y1,x2,y2):
         sita = math.acos(abs(y2-y1)/((x1-x2)**2+(y1-y2)**2)**(1/2))
@@ -124,6 +128,7 @@ class OlympeStreaming(threading.Thread):
 
 
     def display_frame(self, yuv_frame, x=None):
+        print('display_funcが呼び出されました')
         # the VideoFrame.info() dictionary contains some useful information
         # such as the video resolution
         info = yuv_frame.info()
@@ -200,6 +205,7 @@ class OlympeStreaming(threading.Thread):
             #15度以上傾くと回転する
             if self.sita>=math.pi/12:
                 self.rotation(self.sita)
+                self.log_df.append({'sita' : self.sita ,'slide' : 'None','go':0} , ignore_index=True)
 
             #########並行移動##########
             distance=cx-self.CX
@@ -210,20 +216,29 @@ class OlympeStreaming(threading.Thread):
 
                 if distance>60:
                     self.move_slide(0.3)
+                    self.log_df.append({'sita': 'None', 'slide': 0.3,'go':0}, ignore_index=True)
                     time.sleep(3)
                 elif distance>40:
                     self.move_slide(0.2)
+                    self.log_df.append({'sita': 'None', 'slide': 0.2,'go':0}, ignore_index=True)
+
                     time.sleep(3)
                 elif distance>-40:
                     self.move_slide(-0.2)
+                    self.log_df.append({'sita': 'None', 'slide': -0.2,'go':0}, ignore_index=True)
+
                     time.sleep(3)
                 else:
                     self.move_slide(-0.3)
+                    self.log_df.append({'sita': 'None', 'slide': -0.3,'go':0}, ignore_index=True)
+
                     time.sleep(3)
 
             if self.sita>=math.pi/12 and (distance>30 and distance<-30):
-                self.go()
-                
+                self.go_ahead=0.5
+                self.go(self.go_ahead)
+                self.log_df.append({'sita' : self.sita ,'slide' : 'None','go':self.go_ahead} , ignore_index=True)
+
         # # img⇛カラーに変換
         # img = cv2.cvtColor(cv2frame, cv2.CV_GRAY2BGR)
         # if len(myFaceListArea) != 0:
@@ -265,6 +280,7 @@ class OlympeStreaming(threading.Thread):
                     # Don't forget to unref the yuv frame. We don't want to
                     # starve the video buffer pool
                     yuv_frame.unref()
+        self.log_df.to_csv('log.csv')
 
 
 logger = logging.getLogger(__name__)

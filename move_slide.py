@@ -17,7 +17,6 @@ def slide(x):
     drone.connect()
     drone(moveBy(0,x, 0, 0)
               >> FlyingStateChanged(state="hovering", _timeout=3)).wait().success()
-    time.sleep(3)
     drone.disconnect()
 
 if __name__ == '__main__':
