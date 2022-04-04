@@ -39,8 +39,6 @@ class OlympeStreaming(threading.Thread):
         self.flag=False
         self.log_df = pd.DataFrame(columns=['sita','slide','go'])
         # self.drone(moveBy(0,0,0.5,0))
-
-
         super().__init__()
         super().start()
 
@@ -260,6 +258,10 @@ class OlympeStreaming(threading.Thread):
 
         cv2.imshow("cv2_show", cv2frame)
         cv2.waitKey(1)
+        self.log_df.to_csv('log.csv')
+        print('='*10+'log'+'='*10)
+        print(self.log_df)
+        print('=='*10)
 
     def run(self):
         print(threading.enumerate())
