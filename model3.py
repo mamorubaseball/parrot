@@ -17,8 +17,11 @@ import numpy as np
 import pandas as pd
 import os
 from olympe.messages.ardrone3.PilotingSettings import MaxTilt, MaxAltitude
+import logging
 
 #logレベルの変更
+olympe.log.update_config({"loggers": {"olympe": {"level": "WARNING"}}})
+logger = logging.getLogger("olympe")
 olympe.log.update_config({
     "handlers": {
         "olympe_log_file": {
@@ -37,7 +40,7 @@ olympe.log.update_config({
             "handlers": ["console", "olympe_log_file"]
         },
         "ulog": {
-            "level": "ERROR",
+            "level": "WARNING",
             "handlers": ["console", "ulog_log_file"],
         }
     }
