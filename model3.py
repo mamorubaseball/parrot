@@ -18,6 +18,31 @@ import pandas as pd
 import os
 from olympe.messages.ardrone3.PilotingSettings import MaxTilt, MaxAltitude
 
+#logレベルの変更
+olympe.log.update_config({
+    "handlers": {
+        "olympe_log_file": {
+            "class": "logging.FileHandler",
+            "formatter": "default_formatter",
+            "filename": "olympe.log"
+        },
+        "ulog_log_file": {
+            "class": "logging.FileHandler",
+            "formatter": "default_formatter",
+            "filename": "ulog.log"
+        },
+    },
+    "loggers": {
+        "olympe": {
+            "handlers": ["console", "olympe_log_file"]
+        },
+        "ulog": {
+            "level": "ERROR",
+            "handlers": ["console", "ulog_log_file"],
+        }
+    }
+})
+
 
 class OlympeStreaming(threading.Thread):
     def __init__(self, drone):
@@ -203,7 +228,7 @@ class OlympeStreaming(threading.Thread):
                 self.rotation(self.sita)
                 self.log_df.append({'sita' : self.sita ,'slide' : 'None','go':0} , ignore_index=True)
                 print('=='*10)
-                print('{}度開店する'.format(self.sita))
+                print('{}度回転する'.format(self.sita))
                 print('=='*10)
                 time.sleep(5)
 
@@ -308,7 +333,6 @@ if __name__ == "__main__":
     IP = "192.168.42.1"
     drone = olympe.Drone(IP)
     drone.connect()
-    olympe.log.update_config({"loggers": {"olympe": {"level": "WARNING"}}})
 
     streamer = OlympeStreaming(drone)
     streamer.set_gimbal()
