@@ -19,8 +19,6 @@ import os
 from olympe.messages.ardrone3.PilotingSettings import MaxTilt, MaxAltitude
 
 
-
-
 class OlympeStreaming(threading.Thread):
     def __init__(self, drone):
         self.drone = drone
@@ -204,6 +202,10 @@ class OlympeStreaming(threading.Thread):
             if self.sita>=math.pi/12:
                 self.rotation(self.sita)
                 self.log_df.append({'sita' : self.sita ,'slide' : 'None','go':0} , ignore_index=True)
+                print('=='*10)
+                print('{}度開店する'.format(self.sita))
+                print('=='*10)
+                time.sleep(5)
 
             #########並行移動##########
             distance=cx-self.CX
@@ -215,28 +217,42 @@ class OlympeStreaming(threading.Thread):
                 if distance>60:
                     self.move_slide(0.3)
                     self.log_df.append({'sita': 'None', 'slide': 0.3,'go':0}, ignore_index=True)
-                    time.sleep(3)
+                    print('=='*10)
+                    print('右に30cm移動')
+                    print('=='*10)
+                    time.sleep(5)
                 elif distance>40:
                     self.move_slide(0.2)
                     self.log_df.append({'sita': 'None', 'slide': 0.2,'go':0}, ignore_index=True)
+                    print('=='*10)
+                    print('右に20cm移動')
+                    print('=='*10)
 
-                    time.sleep(3)
+                    time.sleep(5)
                 elif distance>-40:
                     self.move_slide(-0.2)
                     self.log_df.append({'sita': 'None', 'slide': -0.2,'go':0}, ignore_index=True)
+                    print('=='*10)
+                    print('左に20cm移動')
+                    print('=='*10)
 
-                    time.sleep(3)
+                    time.sleep(5)
                 else:
                     self.move_slide(-0.3)
                     self.log_df.append({'sita': 'None', 'slide': -0.3,'go':0}, ignore_index=True)
+                    print('=='*10)
+                    print('左に30cm移動')
+                    print('=='*10)
+                    time.sleep(5)
 
-                    time.sleep(3)
-
+            #線との角度が15°以下で距離が30cm未満の場合
             if self.sita>=math.pi/12 and (distance>30 and distance<-30):
                 self.go_ahead=0.5
                 self.go(self.go_ahead)
                 self.log_df.append({'sita' : self.sita ,'slide' : 'None','go':self.go_ahead} , ignore_index=True)
-
+                print('==' * 10)
+                print('50cmすすむ')
+                print('==' * 10)
         # # img⇛カラーに変換
         # img = cv2.cvtColor(cv2frame, cv2.CV_GRAY2BGR)
         # if len(myFaceListArea) != 0:
@@ -292,6 +308,7 @@ if __name__ == "__main__":
     IP = "192.168.42.1"
     drone = olympe.Drone(IP)
     drone.connect()
+    olympe.log.update_config({"loggers": {"olympe": {"level": "WARNING"}}})
 
     streamer = OlympeStreaming(drone)
     streamer.set_gimbal()
